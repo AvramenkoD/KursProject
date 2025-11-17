@@ -4,7 +4,6 @@
 
 #define WIDTH   100     
 #define HEIGHT   50     
-#define SIZE1    10     
 
 
 typedef double (*TFunс)(double);
@@ -13,14 +12,14 @@ double funcY(double x);
 double funcV(double x);
 
 int printTab(TFunс pFunc, double x1, double x2, double step);
-int buildGraph(TFunс f, double xStart, double xEnd, double step);
+int buildGraph(TFunс f, double xStart, double xEnd);
 
 int main(void)
 {
     setlocale(LC_ALL, "RUS");
 
     TFunс masFunc[2] = { funcY, funcV };
-    int choice, opChoice,repeatF = 0;
+    int choice, opChoice, repeatF = 0, inputEr = 0;
     double x1, x2, step;
 
     puts("----------------------------------------");
@@ -36,21 +35,25 @@ int main(void)
 
     do
     {
-        puts("\nВыберите функцию:");
-        puts("0) Y(x) = e^(cos(x)) * cos(sin(x))");
-        puts("");
-        puts("1) V(x) =");
-        puts("   | x > 0.75           -> x + 1");
-        puts("   | 0 <= x <= 0.75     -> 1 - x^5");
-        puts("   | x < 0              -> x + ln(|cos(x)|)");
-        printf("\nВаш выбор: ");
-        scanf("%d", &choice);
-
-        if (choice < 0 || choice > 1)
+        do
         {
-            puts("Ошибка: выбран некорректный номер функции.");
-            return 1;
-        }
+            puts("\nВыберите функцию:");
+            puts("0) Y(x) = e^(cos(x)) * cos(sin(x))");
+            puts("");
+            puts("1) V(x) =");
+            puts("   | x > 0.75           -> x + 1");
+            puts("   | 0 <= x <= 0.75     -> 1 - x^5");
+            puts("   | x < 0              -> x + ln(|cos(x)|)");
+            printf("\nВаш выбор: ");
+            scanf("%d", &choice);
+
+            inputEr = 0;
+            if (choice < 0 || choice > 1)
+            {
+                puts("Ошибка: выбран некорректный номер функции.");
+                inputEr = 1;
+            }
+        } while (inputEr);
 
         puts("\nВыберите действие:");
         puts("1) Вычислить значение функции");
@@ -74,9 +77,9 @@ int main(void)
             break;
 
         case 3:
-            printf("Введите диапазон и шаг через пробел (x1 x2 h): ");
+            printf("Введите диапазон через пробел (x1 x2): ");
             scanf("%lf %lf %lf", &x1, &x2, &step);
-            buildGraph(masFunc[choice], x1, x2, step);
+            buildGraph(masFunc[choice], x1, x2);
             break;
         default:
             puts("Ошибка: выбран некорректный номер действия.");
@@ -92,10 +95,7 @@ int main(void)
     return 0;
 }
 
-/*------------------------------------------------------------
- * Функция Y(x) = e^(cos(x)) * cos(sin(x))
- * Непрерывная, определена при всех x ∈ R
- *------------------------------------------------------------*/
+// Функция Y(x) = e^(cos(x)) * cos(sin(x))
 double funcY(double x)
 {
     return exp(cos(x)) * cos(sin(x));
@@ -115,9 +115,11 @@ double funcV(double x)
         return x + 1;
     else if (x >= 0)
         return 1 - pow(x, 5);
-    else {
+    else
+    {
         /* проверка области допустимых значений */
-        if (fabs(cos(x)) < EPS) {
+        if (fabs(cos(x)) < EPS)
+        {
             fprintf(stderr, "Ошибка: недопустимое значение x (cos(x) ≈ 0)\n");
             return NAN;
         }
@@ -125,9 +127,8 @@ double funcV(double x)
     }
 }
 
-/*------------------------------------------------------------
- * Функция вывода таблицы значений
- *------------------------------------------------------------*/
+
+// Функция вывода таблицы значений
 int printTab(TFunс pFunc, double x1, double x2, double step)
 {
     double y;
@@ -145,10 +146,8 @@ int printTab(TFunс pFunc, double x1, double x2, double step)
     return 0;
 }
 
-/*------------------------------------------------------------
- * Функция построения графика функции в консоли
- *------------------------------------------------------------*/
-int buildGraph(TFunс f, double xStart, double xEnd, double step)
+// Функция построения графика функции в консоли
+int buildGraph(TFunс f, double xStart, double xEnd)
 {
     char screen[HEIGHT][WIDTH];
     double x, y[WIDTH];
