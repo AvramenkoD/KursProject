@@ -13,6 +13,7 @@ double funcV(double x);
 
 int printTab(TFunс pFunc, double x1, double x2, double step);
 int buildGraph(TFunс f, double xStart, double xEnd);
+int chunkV(double x);
 
 int main(void)
 {
@@ -78,7 +79,7 @@ int main(void)
 
         case 3:
             printf("Введите диапазон через пробел (x1 x2): ");
-            scanf("%lf %lf %lf", &x1, &x2, &step);
+            scanf("%lf %lf", &x1, &x2);
             buildGraph(masFunc[choice], x1, x2);
             break;
         default:
@@ -146,22 +147,23 @@ int printTab(TFunс pFunc, double x1, double x2, double step)
     return 0;
 }
 
-// Функция построения графика функции в консоли
 int buildGraph(TFunс f, double xStart, double xEnd)
 {
     char screen[HEIGHT][WIDTH];
     double x, y[WIDTH];
-    double ymin = 0, ymax = 0;
+    double ymin = 1e9, ymax = -1e9;
     double hx, hy;
     int i, j, xz, yz;
 
     hx = (xEnd - xStart) / (WIDTH - 1);
 
-    /* вычисление значений функции и поиск минимума/максимума */
+    /* вычисление значений функции и поиск min/max */
     for (i = 0, x = xStart; i < WIDTH; ++i, x += hx) {
         y[i] = f(x);
-        if (y[i] < ymin) ymin = y[i];
-        if (y[i] > ymax) ymax = y[i];
+        if (isfinite(y[i])) {
+            if (y[i] < ymin) ymin = y[i];
+            if (y[i] > ymax) ymax = y[i];
+        }
     }
 
     hy = (ymax - ymin) / (HEIGHT - 1);
@@ -171,13 +173,50 @@ int buildGraph(TFunс f, double xStart, double xEnd)
     /* построение осей и фона */
     for (j = 0; j < HEIGHT; ++j)
         for (i = 0; i < WIDTH; ++i)
-            screen[j][i] = (j == yz) ? '-' : (i == xz ? '|' : ' ');
+            screen[j][i] = (j == yz ? '-' : (i == xz ? '|' : ' '));
 
-    /* нанесение точек функции */
+    /* нанесение точек функции с обработкой разрывов */
+    int prev_j = -1;
+    int prev_valid = 0;
+
     for (i = 0; i < WIDTH; ++i) {
+        double curr_x = xStart + i * hx;
+
+        if (!isfinite(y[i])) { // разрыв по NaN/Inf
+            prev_valid = 0;
+            continue;
+        }
+
         j = (int)floor((ymax - y[i]) / hy + 0.5);
+
+        /* рисуем точку */
         if (j >= 0 && j < HEIGHT)
             screen[j][i] = '*';
+
+        /* соединяем с предыдущей точкой только если обе валидны */
+        if (i > 0 && prev_valid) {
+            int do_connect = 1;
+
+            /* костыль для funcV: не соединяем точки разных кусков */
+            if (f == funcV) {
+                double prev_x = xStart + (i - 1) * hx;
+                if (chunkV(prev_x) != chunkV(curr_x))
+                    do_connect = 0;
+            }
+
+            if (do_connect) {
+                int a = prev_j;
+                int b = j;
+                if (a > b) { int t = a; a = b; b = t; }
+
+                for (int k = a; k <= b; ++k)
+                    if (k >= 0 && k < HEIGHT)
+                        screen[k][i] = '*';
+            }
+        }
+
+        prev_j = j;
+        prev_valid = 1;
     }
 
     /* вывод на экран */
@@ -188,4 +227,10 @@ int buildGraph(TFunс f, double xStart, double xEnd)
     }
 
     return 0;
+}
+/* функция для определения куска funcV */
+int chunkV(double x) {
+    if (x > 0.75) return 3;
+    else if (x >= 0) return 2;
+    else return 1;
 }
