@@ -155,56 +155,60 @@ int buildGraph(TFunс_t f, double xStart, double xEnd)
     char screen[HEIGHT][WIDTH];
     double x, y[WIDTH];
     double ymin = 1e9, ymax = -1e9;
-    double hx, hy;
-    int i, j, xz, yz;
+    double stepX, stepY;
+    int xZero, yZero, screenCordY;
 
-    hx = (xEnd - xStart) / (WIDTH - 1);
+    if (xStart > xEnd || xStart == xEnd)
+    {
+        puts("Ошибка входных данных");
+        return -1;
+    }
+    stepX = (xEnd - xStart) / (WIDTH - 1);
 
+    x = xStart;
     /* вычисление значений функции и поиск min/max */
-    for (i = 0, x = xStart; i < WIDTH; ++i, x += hx) {
+    for (int i = 0; i < WIDTH; ++i, x += stepX) {
         y[i] = f(x);
-        if (isfinite(y[i])) {
-            if (y[i] < ymin) ymin = y[i];
-            if (y[i] > ymax) ymax = y[i];
-        }
+        if (y[i] < ymin) ymin = y[i];
+        if (y[i] > ymax) ymax = y[i];
     }
 
-    hy = (ymax - ymin) / (HEIGHT - 1);
-    yz = (int)floor(ymax / hy + 0.5);
-    xz = (int)floor((0.0 - xStart) / hx + 0.5);
+    stepY = (ymax - ymin) / (HEIGHT - 1);
+    yZero = (int)floor(ymax / stepY + 0.5);
+    xZero = (int)floor((0.0 - xStart) / stepX + 0.5);
 
     /* построение осей и фона */
-    for (j = 0; j < HEIGHT; ++j)
-        for (i = 0; i < WIDTH; ++i)
-            screen[j][i] = (j == yz ? '-' : (i == xz ? '|' : ' '));
+    for (int j = 0; j < HEIGHT; ++j)
+        for (int i = 0; i < WIDTH; ++i)
+            screen[j][i] = (j == yZero ? '-' : (i == xZero ? '|' : ' '));
 
-    /* нанесение точек функции с обработкой разрывов */
+    /* нанесение точек функции */
     int prev_j = -1;
     int prev_valid = 0;
 
-    for (i = 0; i < WIDTH; ++i) {
-        double curr_x = xStart + i * hx;
+    for (int i = 0; i < WIDTH; ++i) {
+        double curr_x = xStart + i * stepX;
 
-        j = (int)floor((ymax - y[i]) / hy + 0.5);
+        screenCordY = (int)floor((ymax - y[i]) / stepY + 0.5);
 
         /* рисуем точку */
-        if (j >= 0 && j < HEIGHT)
-            screen[j][i] = '*';
+        if (screenCordY >= 0 && screenCordY < HEIGHT)
+            screen[screenCordY][i] = '*';
 
-        /* соединяем с предыдущей точкой только если обе валидны */
+        /* соединяем с предыдущей точкой */
         if (i > 0 && prev_valid) {
             int do_connect = 1;
 
-            /* костыль для funcV: не соединяем точки разных кусков */
+            /* не соединяем точки разных кусков */
             if (f == funcV) {
-                double prev_x = xStart + (i - 1) * hx;
+                double prev_x = xStart + (i - 1) * stepX;
                 if (chunkV(prev_x) != chunkV(curr_x))
                     do_connect = 0;
             }
 
             if (do_connect) {
                 int a = prev_j;
-                int b = j;
+                int b = screenCordY;
                 if (a > b) { int t = a; a = b; b = t; }
 
                 for (int k = a; k <= b; ++k)
@@ -213,13 +217,13 @@ int buildGraph(TFunс_t f, double xStart, double xEnd)
             }
         }
 
-        prev_j = j;
+        prev_j = screenCordY;
         prev_valid = 1;
     }
 
     /* вывод на экран */
-    for (j = 0; j < HEIGHT; ++j) {
-        for (i = 0; i < WIDTH; ++i)
+    for (int j = 0; j < HEIGHT; ++j) {
+        for (int i = 0; i < WIDTH; ++i)
             putchar(screen[j][i]);
         putchar('\n');
     }
