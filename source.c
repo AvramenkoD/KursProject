@@ -6,20 +6,20 @@
 #define HEIGHT   50     
 
 
-typedef double (*TFunс)(double);
+typedef double (*TFunс_t)(double);
 
 double funcY(double x);
 double funcV(double x);
 
-int printTab(TFunс pFunc, double x1, double x2, double step);
-int buildGraph(TFunс f, double xStart, double xEnd);
+int printTab(TFunс_t pFunc, double x1, double x2, double step);
+int buildGraph(TFunс_t f, double xStart, double xEnd);
 int chunkV(double x);
 
 int main(void)
 {
     setlocale(LC_ALL, "RUS");
 
-    TFunс masFunc[2] = { funcY, funcV };
+    TFunс_t masFunc[2] = { funcY, funcV };
     int choice, opChoice, repeatF = 0, inputEr = 0;
     double x1, x2, step;
 
@@ -56,35 +56,43 @@ int main(void)
             }
         } while (inputEr);
 
-        puts("\nВыберите действие:");
-        puts("1) Вычислить значение функции");
-        puts("2) Табулировать функцию");
-        puts("3) Построить график функции");
-        printf("\nВаш выбор: ");
-        scanf("%d", &opChoice);
+        do
+        {
+            puts("\nВыберите действие:");
+            puts("1) Вычислить значение функции");
+            puts("2) Табулировать функцию");
+            puts("3) Построить график функции");
+            printf("\nВаш выбор: ");
+            scanf("%d", &opChoice);
+
+            inputEr = 0;
+            if (opChoice < 1 || opChoice > 3)
+            {
+                puts("Ошибка: выбран некорректный номер действия.");
+                inputEr = 1;
+            }
+        } while (inputEr);
 
         switch (opChoice)
         {
-        case 1:
-            printf("\nВведите x: ");
-            scanf("%lf", &x1);
-            printf("Результат: f(%.3lf) = %.10lf\n", x1, masFunc[choice](x1));
-            break;
-
-        case 2:
-            printf("Введите диапазон и шаг через пробел (x1 x2 h): ");
-            scanf("%lf %lf %lf", &x1, &x2, &step);
-            printTab(masFunc[choice], x1, x2, step);
-            break;
-
-        case 3:
-            printf("Введите диапазон через пробел (x1 x2): ");
-            scanf("%lf %lf", &x1, &x2);
-            buildGraph(masFunc[choice], x1, x2);
-            break;
-        default:
-            puts("Ошибка: выбран некорректный номер действия.");
-            break;
+            case 1:
+                printf("\nВведите x: ");
+                scanf("%lf", &x1);
+                printf("Результат: f(%.3lf) = %.10lf\n", x1, masFunc[choice](x1));
+                break;
+            case 2:
+                printf("Введите диапазон и шаг через пробел (x1 x2 h): ");
+                scanf("%lf %lf %lf", &x1, &x2, &step);
+                printTab(masFunc[choice], x1, x2, step);
+                break;
+            case 3:
+                printf("Введите диапазон через пробел (x1 x2): ");
+                scanf("%lf %lf", &x1, &x2);
+                buildGraph(masFunc[choice], x1, x2);
+                break;
+            default:
+                puts("Ошибка: выбран некорректный номер действия.");
+                break;
         }
 
         repeatF = 0;
@@ -110,27 +118,22 @@ double funcY(double x)
  *------------------------------------------------------------*/
 double funcV(double x)
 {
-    const double EPS = 1e-6;
-
     if (x > 0.75)
         return x + 1;
     else if (x >= 0)
         return 1 - pow(x, 5);
     else
     {
-        /* проверка области допустимых значений */
-        if (fabs(cos(x)) < EPS)
-        {
-            fprintf(stderr, "Ошибка: недопустимое значение x (cos(x) ≈ 0)\n");
+        if (cos(x) != 0)
+            return x + log(fabs(cos(x)));
+        else
             return NAN;
-        }
-        return x + log(fabs(cos(x)));
     }
 }
 
 
 // Функция вывода таблицы значений
-int printTab(TFunс pFunc, double x1, double x2, double step)
+int printTab(TFunс_t pFunc, double x1, double x2, double step)
 {
     double y;
 
@@ -147,7 +150,7 @@ int printTab(TFunс pFunc, double x1, double x2, double step)
     return 0;
 }
 
-int buildGraph(TFunс f, double xStart, double xEnd)
+int buildGraph(TFunс_t f, double xStart, double xEnd)
 {
     char screen[HEIGHT][WIDTH];
     double x, y[WIDTH];
@@ -181,11 +184,6 @@ int buildGraph(TFunс f, double xStart, double xEnd)
 
     for (i = 0; i < WIDTH; ++i) {
         double curr_x = xStart + i * hx;
-
-        if (!isfinite(y[i])) { // разрыв по NaN/Inf
-            prev_valid = 0;
-            continue;
-        }
 
         j = (int)floor((ymax - y[i]) / hy + 0.5);
 
