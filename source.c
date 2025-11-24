@@ -184,7 +184,6 @@ int buildGraph(TFunс_t f, double xStart, double xEnd)
 
     /* нанесение точек функции */
     int prev_j = -1;
-    int prev_valid = 0;
 
     for (int i = 0; i < WIDTH; ++i) {
         double curr_x = xStart + i * stepX;
@@ -196,7 +195,7 @@ int buildGraph(TFunс_t f, double xStart, double xEnd)
             screen[screenCordY][i] = '*';
 
         /* соединяем с предыдущей точкой */
-        if (i > 0 && prev_valid) {
+        if (i > 0) {
             int do_connect = 1;
 
             /* не соединяем точки разных кусков */
@@ -209,7 +208,12 @@ int buildGraph(TFunс_t f, double xStart, double xEnd)
             if (do_connect) {
                 int a = prev_j;
                 int b = screenCordY;
-                if (a > b) { int t = a; a = b; b = t; }
+                if (a > b)
+                {
+                    int t = a;
+                    a = b;
+                    b = t; 
+                }
 
                 for (int k = a; k <= b; ++k)
                     if (k >= 0 && k < HEIGHT)
@@ -218,7 +222,6 @@ int buildGraph(TFunс_t f, double xStart, double xEnd)
         }
 
         prev_j = screenCordY;
-        prev_valid = 1;
     }
 
     /* вывод на экран */
