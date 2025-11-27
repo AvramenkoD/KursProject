@@ -18,14 +18,14 @@ int chunkV(double x);
 //Menu function
 TFunc_t schooseFunc(void);
 int schooseOperation(void);
+void take_action(double*, double*, double*, TFunc_t, int);
 
 
 int main(void)
 {
     setlocale(LC_ALL, "RUS");
-
     int opChoice, repeatF = 0, inputEr = 0, firstStart = 1;
-    double x1, x2, step;
+    double x1 = 0, x2 = 0, step = 0;
     TFunc_t func = 0;
 
     puts("-----------------------------------------");
@@ -50,80 +50,15 @@ int main(void)
         {
             func = schooseFunc();
             opChoice = schooseOperation();
-
-            switch (opChoice)
-            {
-            case 1:
-                printf("\nВведите x: ");
-                scanf("%lf", &x1);
-                printf("Результат: f(%.3lf) = %.10lf\n", x1, func(x1, 0));
-                puts("------------------------------------------------------");
-                break;
-            case 2:
-                printf("Введите диапазон и шаг через пробел (x1 x2 h): ");
-                scanf("%lf %lf %lf", &x1, &x2, &step);
-                printTab(func, x1, x2, step);
-                break;
-            case 3:
-                printf("Введите диапазон через пробел (x1 x2): ");
-                scanf("%lf %lf", &x1, &x2);
-                buildGraph(func, x1, x2);
-                break;
-            default:
-                return -1;
-                break;
-            }
+            take_action(&x1, &x2, &step, func, opChoice);
 
         } else if (repeatF == 2)
         {
             opChoice = schooseOperation();
-            switch (opChoice)
-            {
-            case 1:
-                printf("\nВведите x: ");
-                scanf("%lf", &x1);
-                printf("Результат: f(%.3lf) = %.10lf\n", x1, func(x1, 0));
-                puts("------------------------------------------------------");
-                break;
-            case 2:
-                printf("Введите диапазон и шаг через пробел (x1 x2 h): ");
-                scanf("%lf %lf %lf", &x1, &x2, &step);
-                printTab(func, x1, x2, step);
-                break;
-            case 3:
-                printf("Введите диапазон через пробел (x1 x2): ");
-                scanf("%lf %lf", &x1, &x2);
-                buildGraph(func, x1, x2);
-                break;
-            default:
-                return -1;
-                break;
-            }
-
+            take_action(&x1, &x2, &step, func, opChoice);
         } else if (repeatF == 3)
         {
-            switch (opChoice)
-            {
-            case 1:
-                printf("\nВведите x: ");
-                scanf("%lf", &x1);
-                printf("Результат: f(%.3lf) = %.10lf\n", x1, func(x1, 0));
-                puts("------------------------------------------------------");
-                break;
-            case 2:
-                printf("Введите диапазон и шаг через пробел (x1 x2 h): ");
-                scanf("%lf %lf %lf", &x1, &x2, &step);
-                printTab(func, x1, x2, step);
-                break;
-            case 3:
-                printf("Введите диапазон через пробел (x1 x2): ");
-                scanf("%lf %lf", &x1, &x2);
-                buildGraph(func, x1, x2);
-                break;
-            default:
-                return -1;
-                break;
-            }
+            take_action(&x1, &x2, &step, func, opChoice);
         } else
         {
             switch (opChoice)
@@ -148,8 +83,8 @@ int main(void)
         puts("\nВыберите действие:");
         puts("1) Вернуться к выбору функции");
         puts("2) Вернуться к выбору операции с сохранением выбранной ранее функции");
-        puts("3) Повторить последнюю операцию со старыми данными");
-        puts("4) Повторить последнюю операцию с новыми данными");
+        puts("3) Повторить последнюю операцию с новыми данными");
+        puts("4) Повторить последнюю операцию со старыми данными");
         puts("0) Выйти из программы");
         printf("\nВаш выбор: ");
         scanf("%d", &repeatF);
@@ -326,6 +261,7 @@ TFunc_t schooseFunc(void)
         inputEr = 0;
         if (choice < 1 || choice > 2)
         {
+            puts("------------------------------------------------------");
             puts("Ошибка: выбран некорректный номер функции.");
             inputEr = 1;
         }
@@ -355,10 +291,36 @@ int schooseOperation()
         inputEr = 0;
         if (choice < 1 || choice > 3)
         {
-            puts("Ошибка: выбран некорректный номер действия.");
+            printf("\nОшибка: выбран некорректный номер действия.\n");
+            puts("------------------------------------------------------");
             inputEr = 1;
         }
     } while (inputEr);
 
     return choice;
+}
+
+void take_action(double* x1, double* x2, double* step, TFunc_t func, int opChoice) {
+    switch (opChoice)
+    {
+    case 1:
+        printf("\nВведите x: ");
+        scanf("%lf", x1);
+        printf("Результат: f(%.3lf) = %.10lf\n", *x1, func(*x1, 0));
+        puts("------------------------------------------------------");
+        break;
+    case 2:
+        printf("Введите диапазон и шаг через пробел (x1 x2 h): ");
+        scanf("%lf %lf %lf", x1, x2, step);
+        printTab(func, *x1, *x2, *step);
+        break;
+    case 3:
+        printf("Введите диапазон через пробел (x1 x2): ");
+        scanf("%lf %lf", x1, x2);
+        buildGraph(func, *x1, *x2);
+        break;
+    default:
+        return -1;
+        break;
+    }
 }
