@@ -2,31 +2,29 @@
 #include <locale.h>
 #include <math.h>
 
+//Работа с массивом(пункт меню) загрузить данные из файла, создать новые(из табулирования)
+//отсортировать массив(убывание / возастание), алгоритм(расчёска, гномья)
+//найти все отрицательные элементы и вывести остортированные
+
 #define WIDTH   100     
 #define HEIGHT   50     
 
+typedef double (*TFunc_t)(double);
 
-typedef double (*TFunc_t)(double, int);
-
-double funcY(double, int);
-double funcV(double, int);
+double funcY(double);
+double funcV(double);
 
 int printTab(TFunc_t pFunc, double x1, double x2, double step);
 int buildGraph(TFunc_t f, double xStart, double xEnd);
 int chunkV(double x);
 
-//Menu function
-TFunc_t schooseFunc(void);
-int schooseOperation(void);
-void take_action(double*, double*, double*, TFunc_t, int);
-
 
 int main(void)
 {
     setlocale(LC_ALL, "RUS");
-    int opChoice, repeatF = 0, inputEr = 0, firstStart = 1;
-    double x1 = 0, x2 = 0, step = 0;
-    TFunc_t func = 0;
+    int choice, opChoice, repeatF = 1, inputEr;
+    double x1, x2, step;
+    TFunc_t func[2] = { funcY, funcV };
 
     puts("-----------------------------------------");
     puts("| Курсовой проект                       |");
@@ -46,36 +44,82 @@ int main(void)
 
     do
     {
-        if (firstStart || repeatF == 1)
+        switch (repeatF)
         {
-            func = schooseFunc();
-            opChoice = schooseOperation();
-            take_action(&x1, &x2, &step, func, opChoice);
+            case 1:
+                do
+                {
+                    printf("\nВыберите функцию\n\nВаш выбор: ");
+                    scanf("%d", &choice);
 
-        } else if (repeatF == 2)
-        {
-            opChoice = schooseOperation();
-            take_action(&x1, &x2, &step, func, opChoice);
+                    inputEr = 0;
+                    if (choice < 1 || choice > 2)
+                    {
+                        printf("\n------------------------------------------------------\n");
+                        puts("Ошибка: выбран некорректный номер функции.");
+                        inputEr = 1;
+                    }
+                    printf("\n------------------------------------------------------\n\n");
+                    choice--;
+                } while (inputEr);
+            case 2:
+                do
+                {
+                    puts("Выберите операцию:");
+                    puts("1) Вычислить значение функции в точке");
+                    puts("2) Протабулировать функцию на интервале");
+                    puts("3) Построить график функции на интервале");
+                    printf("\nВаш выбор: ");
+                    scanf("%d", &opChoice);
+                    printf("\n------------------------------------------------------\n");
 
-        } else if (repeatF == 3)
-        {
-            take_action(&x1, &x2, &step, func, opChoice);
-
-        } else
-        {
-            switch (opChoice)
-            {
-                case 1:
-                    printf("Результат: f(%.3lf) = %.10lf\n", x1, func(x1, 0));
-                    puts("------------------------------------------------------");
-                    break;
-                case 2:
-                    printTab(func, x1, x2, step);
-                    break;
-                case 3:
-                    buildGraph(func, x1, x2);
-                    break;
-            }
+                    inputEr = 0;
+                    if (opChoice < 1 || opChoice > 3)
+                    {
+                        printf("Ошибка: выбран некорректный номер действия.\n");
+                        puts("------------------------------------------------------\n");
+                        inputEr = 1;
+                    }
+                } while (inputEr);
+            case 3:
+                switch (opChoice)
+                {
+                    case 1:
+                        printf("\nВведите x: ");
+                        scanf("%lf", &x1);
+                        if(func[choice](x1) != NAN)
+                            printf("\nРезультат: f(%.3lf) = %.10lf\n", x1, func[choice](x1));
+                        else
+                            puts("Функция не существует в данной точке.");
+                        puts("------------------------------------------------------");
+                        break;
+                    case 2:
+                        printf("Введите диапазон и шаг через пробел (x1 x2 h): ");
+                        scanf("%lf %lf %lf", &x1, &x2, &step);
+                        printTab(func[choice], x1, x2, step);
+                        break;
+                    case 3:
+                        printf("Введите диапазон через пробел (x1 x2): ");
+                        scanf("%lf %lf", &x1, &x2);
+                        buildGraph(func[choice], x1, x2);
+                        break;
+                }
+                break;
+            case 4:
+                switch (opChoice)
+                {
+                    case 1:
+                        printf("Результат: f(%.3lf) = %.10lf\n", x1, func[choice](x1));
+                        puts("------------------------------------------------------");
+                        break;
+                    case 2:
+                        printTab(func[choice], x1, x2, step);
+                        break;
+                    case 3:
+                        buildGraph(func[choice], x1, x2);
+                        break;
+                }
+                break;
         }
 
         repeatF = 0;
@@ -90,13 +134,12 @@ int main(void)
         puts("------------------------------------------------------");
         printf("\n\n\n\n\n\n\n");
 
-        firstStart = 0;
     } while (repeatF);
     return 0;
 }
 
 // Функция Y(x) = e^(cos(x)) * cos(sin(x))
-double funcY(double x)
+double funcY(double x, int g)
 {
     return exp(cos(x)) * cos(sin(x));
 }
@@ -120,10 +163,6 @@ double funcV(double x, int goal)
         if (cos(x) != 0)
         {
             return x + log(fabs(cos(x)));
-        } else if (cos(x) == 0 && goal == 0)
-        {
-            puts("Функция не существует в данной точке.");
-            return 0;
         } else if (cos(x) == 0)
         {
             return NAN;
@@ -142,7 +181,7 @@ int printTab(TFunc_t pFunc, double x1, double x2, double step)
 
     for (double i = x1; i <= x2; i += step)
     {
-        y = pFunc(i,1);
+        y = pFunc(i);
         printf("| %10.3lf | %26.10lf |\n", i, y);
     }
 
@@ -170,7 +209,12 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
 
     for (int i = 0; i < WIDTH; ++i, x += stepX)
     {
-        y[i] = f(x,1);
+        y[i] = f(x);
+        if (!i)
+        {
+            ymin = y[i];
+            ymax = y[i];
+        }
         if (y[i] < ymin)
             ymin = y[i];
         if (y[i] > ymax)
@@ -249,76 +293,3 @@ int chunkV(double x)
 }
 
 
-TFunc_t schooseFunc(void)
-{
-    int choice,inputEr;
-    do
-    {
-        printf("\nВыберите функцию\n\nВаш выбор: ");
-        scanf("%d", &choice);
-
-        inputEr = 0;
-        if (choice < 1 || choice > 2)
-        {
-            printf("\n------------------------------------------------------\n");
-            puts("Ошибка: выбран некорректный номер функции.");
-            inputEr = 1;
-        }
-        printf("\n------------------------------------------------------\n\n");
-    } while (inputEr);
-
-
-    if (choice == 1)
-        return funcY;
-    else
-        return funcV;
-}
-
-
-int schooseOperation()
-{
-    int choice, inputEr;
-    do
-    {
-        puts("Выберите операцию:");
-        puts("1) Вычислить значение функции в точке");
-        puts("2) Протабулировать функцию");
-        puts("3) Построить график функции");
-        printf("\nВаш выбор: ");
-        scanf("%d", &choice);
-        printf("\n------------------------------------------------------\n");
-
-        inputEr = 0;
-        if (choice < 1 || choice > 3)
-        {
-            printf("Ошибка: выбран некорректный номер действия.\n");
-            puts("------------------------------------------------------\n");
-            inputEr = 1;
-        }
-    } while (inputEr);
-
-    return choice;
-}
-
-
-void take_action(double* x1, double* x2, double* step, TFunc_t func, int opChoice) {
-    switch (opChoice)
-    {
-    case 1:
-        printf("\nВведите x: ");
-        scanf("%lf", x1);
-        printf("\nРезультат: f(%.3lf) = %.10lf\n", *x1, func(*x1, 0));
-        puts("------------------------------------------------------");
-        break;
-    case 2:
-        printf("Введите диапазон и шаг через пробел (x1 x2 h): ");
-        scanf("%lf %lf %lf", x1, x2, step);
-        printTab(func, *x1, *x2, *step);
-        break;
-    case 3:
-        printf("Введите диапазон через пробел (x1 x2): ");
-        scanf("%lf %lf", x1, x2);
-        buildGraph(func, *x1, *x2);
-        break;
-    }
-}
