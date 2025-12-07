@@ -16,13 +16,14 @@ typedef double (*TFunc_t)(double);
 double funcY(double);
 double funcV(double);
 
-double* printTab(TFunc_t pFunc, double x1, double x2, double step);
-int buildGraph(TFunc_t f, double xStart, double xEnd);
-int chunkV(double x);
+double* printTab(TFunc_t, double, double, double);
+int buildGraph(TFunc_t, double, double);
+int chunkV(double);
 int workMas(TFunc_t);
 double* combSort(double*, int, int);
-int printArray(double* array, int size);
-int checkInputEr(int min, int max);
+double* gnomeSort(double*, int, int);
+int printArray(double*, int);
+int checkInputEr(int, int);
 
 
 int main(void)
@@ -57,8 +58,8 @@ int main(void)
                 choice = checkInputEr(1, 2) - 1;
             case 2: 
                 puts("Выберите объёкта с которым хотите работать:");
-                puts("1) Функция(график, табулирование, значение в точке)");
-                puts("2) Массив(сортировка, вывести отрицательные элементы)");
+                puts("1) Функция (график, табулирование, значение в точке)");
+                puts("2) Массив (сортировка, вывести отрицательные элементы)");
                 objChoice = checkInputEr(1, 2);
             case 3:
                 if (objChoice == 1)
@@ -67,8 +68,7 @@ int main(void)
                     puts("1) Вычислить значение функции в точке");
                     puts("2) Протабулировать функцию на интервале");
                     puts("3) Построить график функции на интервале");
-                    puts("4) Работа с массивом");// придумать поинтереснее
-                    opChoice = checkInputEr(1, 4);
+                    opChoice = checkInputEr(1, 3);
                 }
                 else
                     workMas(func[choice]);
@@ -94,9 +94,6 @@ int main(void)
                         printf("Введите диапазон через пробел (началр конец): ");
                         scanf("%lf %lf", &x1, &x2);
                         buildGraph(func[choice], x1, x2);
-                        break;
-                    case 4:
-                        repeatF = workMas(func[choice]);
                         break;
                     }
                 }
@@ -180,7 +177,7 @@ double* printTab(TFunc_t pFunc, double x1, double x2, double step)
 {
     int cnt = 0;
     double y;
-    double* array = malloc(sizeof(double) * ((x2 - x1)/ step));
+    double* array = malloc(sizeof(double) * ((x2 - x1)/ step) + 1);
 
     printf("\n-------------------------------------------\n");
     printf("|     x      |           f(x)             |\n");
@@ -321,16 +318,22 @@ int workMas(TFunc_t func)
                 while (fscanf(file, "%lf",&temp) == 1)
                     size++;
                 fclose(file);
+                if (!size)
+                {
+                    printf("\nФайл пуст. Переходим к созданию нового файла\n");
+                }
+                else
+                {
+                    array = malloc(sizeof(double) * size);
+                    if (array == NULL)
+                        return -1;
 
-                array = malloc(sizeof(double) * size);
-                if (array == NULL)
-                    return -1;
-
-                file = fopen(SFILENAME, "r");
-                for (int i = 0; i < size; i++)
-                    fscanf(file, "%lf", &array[i]);
-                fclose(file);
-                break;
+                    file = fopen(SFILENAME, "r");
+                    for (int i = 0; i < size; i++)
+                        fscanf(file, "%lf", &array[i]);
+                    fclose(file);
+                    break;
+                }
             }
             else
                 printf("\nФайл не существует. Переходим к созданию нового файла\n");
@@ -369,13 +372,41 @@ int workMas(TFunc_t func)
         if (choise1 == 1)
             combSort(array, size, choise2);
         else if (choise1 == 2)
+            gnomeSort(array, size, choise2);
 
         printf("\nОтсортированный массив:\n");
         printArray(array, size);
+
+        printf("\n\nCохранить отсортированный массив в файл?\n1) Да\n2) Нет\n");
+        choise1 = checkInputEr(1, 2);
+        
+        if (choise1 == 1)
+        {
+            file = fopen(SFILENAME, "w");
+            for (int i = 0; i < size; i++)
+            {
+                fprintf(file, "%lf ", array[i]);
+            }
+            fclose(file);
+        }
     }
     else if (choise2 == 2)
     {
+        printf("\nКак вы хотите вывести элементы:");
+        printf("\n1) По убыванию\n2) По возрастанию\n");
+        choise1 = checkInputEr(1, 2);
 
+        printf("\nИзначальный массив:\n");
+        printArray(array, size);
+
+        combSort(array, size, choise1);
+
+        printf("\nОтсортированные отрицательные элементы:\n");
+        for (int i = 0; i < size; i++)
+        {
+            if (array[i] < 0)
+                printf("%lf ", array[i]);
+        }
     }
 
     free(array);
@@ -447,6 +478,47 @@ double* combSort(double* array, int size, int h)
                     }
                 }
             }
+    }
+    return array;
+}
+
+double* gnomeSort(double* array, int size, int h)
+{
+    double temp;
+    int i = 1;
+
+    if (h == 1) {
+        while (i < size)
+        {
+            if (i == 0 || array[i - 1] >= array[i])
+            {
+                i++;
+            }
+            else
+            {
+                temp = array[i];
+                array[i] = array[i - 1];
+                array[i - 1] = temp;
+                i--;
+            }
+        }
+    }
+    else if (h == 2)
+    {
+        while (i < size)
+        {
+            if (i == 0 || array[i - 1] <= array[i])
+            {
+                i++;
+            }
+            else
+            {
+                temp = array[i];
+                array[i] = array[i - 1];
+                array[i - 1] = temp;
+                i--;
+            }
+        }
     }
     return array;
 }
