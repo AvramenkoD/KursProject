@@ -160,7 +160,8 @@ double funcV(double x)
     else if (x >= 0)
     {
         return 1 - pow(x, 5);
-    }    else
+    }
+    else
     {
         if (cos(x) != 0)
         {
@@ -253,8 +254,8 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
 
             if (f == funcV)
             {
-                double prevX = xStart + (i - 1) * stepX;
-                if (chunkV(prevX) != chunkV(curr_x))
+                double oldX = xStart + (i - 1) * stepX;
+                if (chunkV(oldX) != chunkV(curr_x))
                     doConnect = 0;
             }
 
