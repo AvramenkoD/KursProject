@@ -19,7 +19,7 @@ double funcV(double);
 double* printTab(TFunc_t, double, double, double);
 int buildGraph(TFunc_t, double, double);
 int chunkV(double);
-int workMas(TFunc_t);
+int workMas(TFunc_t,int);
 double* combSort(double*, int, int);
 double* gnomeSort(double*, int, int);
 int printArray(double*, int);
@@ -71,7 +71,7 @@ int main(void)
                     opChoice = checkInputEr(1, 3);
                 }
                 else
-                    workMas(func[choice]);
+                    workMas(func[choice],repeatF);
             case 4:
                 if (objChoice == 1) {
                     switch (opChoice)
@@ -301,116 +301,149 @@ int chunkV(double x)
 //Работа с массивом(пункт меню) загрузить данные из файла, создать новые(из табулирования)
 //отсортировать массив(убывание / возастание), алгоритм(расчёска, гномья)
 //найти все отрицательные элементы и вывести остортированные.
-int workMas(TFunc_t func)
+int workMas(TFunc_t func, int repeatF)
 {
     FILE* file;
-    int inputErL, choise1 = 0, choise2 = 0, size = 0;
+    int inputErL, choise1 = 0, choise2 = 0, size = 0, cnt;
     double* array = 0, start, end, step,temp;
-
-    printf("\nВы хотите:\n1) Загрузить массив из файла\n2) Создать новый\n");
-    choise1 = checkInputEr(1, 2);
-
-    switch (choise1)
+    do
     {
-        case 1:
-            if ((file = fopen(SFILENAME, "r")) != NULL)
+        if (repeatF <= 3)
+        {
+            printf("\nВы хотите:\n1) Загрузить массив из файла\n2) Создать новый\n");
+            choise1 = checkInputEr(1, 2);
+
+            switch (choise1)
             {
-                while (fscanf(file, "%lf",&temp) == 1)
-                    size++;
-                fclose(file);
-                if (!size)
+            case 1:
+                if ((file = fopen(SFILENAME, "r")) != NULL)
                 {
-                    printf("\nФайл пуст. Переходим к созданию нового файла\n");
+                    while (fscanf(file, "%lf", &temp) == 1)
+                        size++;
+                    fclose(file);
+                    if (!size)
+                    {
+                        printf("\nФайл пуст. Переходим к созданию нового файла\n");
+                    }
+                    else
+                    {
+                        array = malloc(sizeof(double) * size);
+                        if (array == NULL)
+                            return -1;
+
+                        file = fopen(SFILENAME, "r");
+                        for (int i = 0; i < size; i++)
+                            fscanf(file, "%lf", &array[i]);
+                        fclose(file);
+                        break;
+                    }
                 }
                 else
-                {
-                    array = malloc(sizeof(double) * size);
-                    if (array == NULL)
-                        return -1;
+                    printf("\nФайл не существует. Переходим к созданию нового файла\n");
+            case 2:
+                file = fopen(SFILENAME, "w");
+                printf("Для генерации данных, далее записанных в файл, будет протабулированна функция.");
+                printf("\nВведите диапазон и шаг через для табуляции (начало конец шаг): ");
+                scanf("%lf %lf %lf", &start, &end, &step);
+                array = printTab(func, start, end, step);
+                size = (int)(end - start) / step + 1;
 
-                    file = fopen(SFILENAME, "r");
-                    for (int i = 0; i < size; i++)
-                        fscanf(file, "%lf", &array[i]);
-                    fclose(file);
-                    break;
+                for (int i = 0; i < size; i++)
+                {
+                    fprintf(file, "%lf ", array[i]);
+                }
+                fclose(file);
+                puts("Столбец значений функции был записан в файл");
+                break;
+            }
+        }
+
+        printf("\nЧто вы хотите сделать с массивом:\n1) Отсортировать\n2) Вывести все отрицательные элементы\n");
+        choise2 = checkInputEr(1, 2);
+
+        if (choise2 == 1) {
+            printf("\nКаким алгоритмом сортировки вы хотите отсортировать массив:");
+            printf("\n1) Сортировка расчёской\n2) Гномья сортировка\n");
+            choise1 = checkInputEr(1, 2);
+
+            printf("\nКак вы хотите отсортировать массив:");
+            printf("\n1) По убыванию\n2) По возрастанию\n");
+            choise2 = checkInputEr(1, 2);
+
+            printf("\nИзначальный массив:\n");
+            printArray(array, size);
+
+            if (choise1 == 1)
+                combSort(array, size, choise2);
+            else if (choise1 == 2)
+                gnomeSort(array, size, choise2);
+
+            printf("\nОтсортированный массив:\n");
+            printArray(array, size);
+
+            printf("\n\nCохранить отсортированный массив в файл?\n1) Да\n2) Нет\n");
+            choise1 = checkInputEr(1, 2);
+
+            if (choise1 == 1)
+            {
+                file = fopen(SFILENAME, "w");
+                for (int i = 0; i < size; i++)
+                {
+                    fprintf(file, "%lf ", array[i]);
+                }
+                fclose(file);
+            }
+        }
+        else if (choise2 == 2)
+        {
+            printf("\nКак вы хотите вывести элементы:");
+            printf("\n1) По убыванию\n2) По возрастанию\n");
+            choise1 = checkInputEr(1, 2);
+
+            printf("\nИзначальный массив:\n");
+            printArray(array, size);
+
+            combSort(array, size, choise1);
+
+            cnt = 0;
+            for (int i = 0; i < size; i++)
+            {
+                if (array[i] < 0)
+                {
+                    cnt++;
+                }
+            }
+            if (cnt)
+            {
+                printf("\n\nОтсортированные отрицательные элементы:\n");
+                for (int i = 0; i < size; i++)
+                {
+                    if (array[i] < 0)
+                    {
+                        printf("%lf ", array[i]);
+                    }
                 }
             }
             else
-                printf("\nФайл не существует. Переходим к созданию нового файла\n");
-        case 2:
-            file = fopen(SFILENAME, "w");
-            printf("Для генерации данных, далее записанных в файл, будет протабулированна функция.");
-            printf("\nВведите диапазон и шаг через для табуляции (начало конец шаг): ");
-            scanf("%lf %lf %lf", &start, &end, &step);
-            array = printTab(func, start, end, step);
-            size = (int)(end - start) / step + 1;
-           
-            for (int i = 0; i < size; i++)
-            {
-                fprintf(file, "%lf ", array[i]);
-            }
-            fclose(file);
-            puts("Столбец значений функции был записан в файл");
-            break;
-    }
-
-    printf("\nЧто вы хотите сделать с массивом:\n1) Отсортировать\n2) Вывести все отрицательные элементы\n");
-    choise2 = checkInputEr(1, 2);
-
-    if (choise2 == 1) {
-        printf("\nКаким алгоритмом сортировки вы хотите отсортировать массив:");
-        printf("\n1) Сортировка расчёской\n2) Гномья сортировка\n");
-        choise1 = checkInputEr(1, 2);
-
-        printf("\nКак вы хотите отсортировать массив:");
-        printf("\n1) По убыванию\n2) По возрастанию\n");
-        choise2 = checkInputEr(1, 2);
-
-        printf("\nИзначальный массив:\n");
-        printArray(array, size);
-
-        if (choise1 == 1)
-            combSort(array, size, choise2);
-        else if (choise1 == 2)
-            gnomeSort(array, size, choise2);
-
-        printf("\nОтсортированный массив:\n");
-        printArray(array, size);
-
-        printf("\n\nCохранить отсортированный массив в файл?\n1) Да\n2) Нет\n");
-        choise1 = checkInputEr(1, 2);
-        
-        if (choise1 == 1)
-        {
-            file = fopen(SFILENAME, "w");
-            for (int i = 0; i < size; i++)
-            {
-                fprintf(file, "%lf ", array[i]);
-            }
-            fclose(file);
+                printf("\n\nВ массиве нет отрицательных элемментов.");
         }
-    }
-    else if (choise2 == 2)
-    {
-        printf("\nКак вы хотите вывести элементы:");
-        printf("\n1) По убыванию\n2) По возрастанию\n");
-        choise1 = checkInputEr(1, 2);
 
-        printf("\nИзначальный массив:\n");
-        printArray(array, size);
+        printf("\n\n------------------------------------------------------\n");
 
-        combSort(array, size, choise1);
+        puts("Выберите действие:");
+        puts("1) Вернуться к выбору функции");
+        puts("2) Вернуться к выбору объекта с которым будет проводиться работа");
+        puts("3) Вернуться к выбору загрузки данных в массив");
+        puts("4) Вернуться к выбору операции над массивом");
+        puts("0) Выйти из программы");
+        repeatF = checkInputEr(1, 4);
 
-        printf("\nОтсортированные отрицательные элементы:\n");
-        for (int i = 0; i < size; i++)
-        {
-            if (array[i] < 0)
-                printf("%lf ", array[i]);
-        }
-    }
+        puts("------------------------------------------------------");
+        printf("\n\n\n\n\n\n\n");
+    } while (repeatF > 2);
 
     free(array);
-    return 0;
+    return repeatF;
 }
 
 int checkInputEr(int min, int max)
