@@ -12,14 +12,14 @@ double funcY(double);
 double funcV(double);
 
 int printTab(TFunc_t, double, double, double);
-double* printTabForArray(TFunc_t, double, double, double);
+double* printTabForArray(double*,TFunc_t, double, double, double);
 int buildGraph(TFunc_t, double, double);
 int chunkV(double);
 double* combSort(double*, int, int);
 double* gnomeSort(double*, int, int);
 int printArray(double*, int);
 int checkInputEr(int, int);
-double* load_datafile(char[100],int, int*, double, double, double, TFunc_t);
+double* load_datafile(double*,char[100],int, int*, double, double, double, TFunc_t);
 
 
 int main(void)
@@ -32,7 +32,7 @@ int main(void)
 
     //Array
     int a_choice, a_opChoise, a_choiceSort[2],a_saveChoise[2],a_choiceOut, size, cnt;
-    double* array = 0;
+    double* array = (double*)malloc(sizeof(double));
     char nameIn[100];
     char nameOut[100];
 
@@ -82,12 +82,12 @@ int main(void)
                     scanf("%s", &nameIn);
                     sprintf(nameOut, "%s.txt", nameIn);
 
-                    if (a_choice == 2 || (a_choice == 1 && (array = load_datafile(nameOut,a_choice, &size, x1, x2, step, func[choice])) == NULL))
+                    if (a_choice == 2 || (a_choice == 1 && (array = load_datafile(array,nameOut,a_choice, &size, x1, x2, step, func[choice])) == NULL))
                     {
                         printf("\tДля генерации данных, далее записанных в файл, будет протабулированна функция.");
                         printf("\n\tВведите диапазон и шаг через для табуляции (начало конец шаг): ");
                         scanf("\t%lf %lf %lf", &x1, &x2, &step);
-                        array = load_datafile(nameOut,2, &size, x1, x2, step, func[choice]);
+                        array = load_datafile(array,nameOut,2, &size, x1, x2, step, func[choice]);
                     }
                     if (array == NULL)
                         return -1;
@@ -225,7 +225,7 @@ int main(void)
             puts("\t4) Повторить последнюю операцию с новыми данными");
             puts("\t5) Повторить последнюю операцию со старыми данными");
             puts("\t0) Выйти из программы");
-            repeatF = checkInputEr(1, 5);
+            repeatF = checkInputEr(0, 5);
 
             puts("\t------------------------------------------------------");
             printf("\n\n\n\n\n\n\n");
@@ -240,7 +240,7 @@ int main(void)
             puts("\t3) Вернуться к выбору загрузки данных в массив");
             puts("\t4) Вернуться к выбору операции над массивом");
             puts("\t0) Выйти из программы");
-            repeatF = checkInputEr(1, 4);
+            repeatF = checkInputEr(0, 4);
 
             puts("\t------------------------------------------------------");
             printf("\n\n\n\n\n\n\n");
@@ -529,10 +529,10 @@ int printArray(double* array, int size)
     return 0;
 }
 
-double* load_datafile(char name[100],int choice, int* inSize, double start, double end, double step, TFunc_t func)
+double* load_datafile(double* array,char name[100],int choice, int* inSize, double start, double end, double step, TFunc_t func)
 {
     FILE* file;
-    double temp,*array = 0;
+    double temp,*tempPtr = 0;
     int size = 0;
     char name1[100];
     sprintf(name1,"%s.txt",name);
@@ -553,9 +553,10 @@ double* load_datafile(char name[100],int choice, int* inSize, double start, doub
                 }
                 else
                 {
-                    array = malloc(sizeof(double) * size);
-                    if (array == NULL)
+                    tempPtr = (double*)realloc(array,sizeof(double) * size);
+                    if (tempPtr == NULL)
                         return NULL;
+                    array = tempPtr;
 
                     file = fopen(name1, "r");
                     for (int i = 0; i < size; i++)
@@ -574,7 +575,7 @@ double* load_datafile(char name[100],int choice, int* inSize, double start, doub
          case 2:
             file = fopen(name1, "w");
 
-            array = printTabForArray(func, start, end, step);
+            array = printTabForArray(array,func, start, end, step);
             size = (int)(end - start) / step + 1;
 
             for (int i = 0; i < size; i++)
@@ -618,13 +619,14 @@ int save_toFile(char* name, double* array, int size,int choice)
     return 0;
 }
 
-double* printTabForArray(TFunc_t pFunc, double x1, double x2, double step)
+double* printTabForArray(double* array,TFunc_t pFunc, double x1, double x2, double step)
 {
     int cnt = 0;
     double y;
-    double* array = (double*)malloc(sizeof(double) * (int)ceil(((x2 - x1) / step))+1);
-    if (array == NULL)
+    double* temp = (double*)realloc(array,sizeof(double) * (int)ceil(((x2 - x1) / step))+1);
+    if (temp == NULL)
         return NULL;
+    array = temp;
 
     printf("\n\t-------------------------------------------\n");
     printf("\t|     x      |           f(x)             |\n");
