@@ -5,7 +5,6 @@
 
 #define WIDTH   100     
 #define HEIGHT   40
-#define SFILENAME "ARRAY.txt"
 
 typedef double (*TFunc_t)(double);
 
@@ -20,7 +19,7 @@ double* combSort(double*, int, int);
 double* gnomeSort(double*, int, int);
 int printArray(double*, int);
 int checkInputEr(int, int);
-double* load_datafile(int, int*, double, double, double, TFunc_t);
+double* load_datafile(char[100],int, int*, double, double, double, TFunc_t);
 
 
 int main(void)
@@ -34,7 +33,8 @@ int main(void)
     //Array
     int a_choice, a_opChoise, a_choiceSort[2],a_saveChoise[2],a_choiceOut, size, cnt;
     double* array = 0;
-    char name[100];
+    char nameIn[100];
+    char nameOut[100];
 
     puts("\t\t-----------------------------------------");
     puts("\t\t| Курсовой проект                       |");
@@ -78,12 +78,16 @@ int main(void)
                     printf("\n\tВы хотите:\n\t1) Загрузить массив из файла\n\t2) Создать новый\n");// Имя файл должен указывать пользователь??
                     a_choice = checkInputEr(1, 2);
 
-                    if (a_choice == 2 || (a_choice == 1 && (array = load_datafile(a_choice, &size, x1, x2, step, func[choice])) == NULL))
+                    printf("\n\n\tВведите название файла (меньше 50 символов): ");
+                    scanf("%s", &nameIn);
+                    sprintf(nameOut, "%s.txt", nameIn);
+
+                    if (a_choice == 2 || (a_choice == 1 && (array = load_datafile(nameOut,a_choice, &size, x1, x2, step, func[choice])) == NULL))
                     {
                         printf("\tДля генерации данных, далее записанных в файл, будет протабулированна функция.");
                         printf("\n\tВведите диапазон и шаг через для табуляции (начало конец шаг): ");
                         scanf("\t%lf %lf %lf", &x1, &x2, &step);
-                        array = load_datafile(2, &size, x1, x2, step, func[choice]);
+                        array = load_datafile(nameOut,2, &size, x1, x2, step, func[choice]);
                     }
                     if (array == NULL)
                         return -1;
@@ -134,7 +138,7 @@ int main(void)
                         else if (a_choiceSort[0] == 2)
                             gnomeSort(array, size, a_choiceSort[1]);
 
-                        printf("\n\tОтсортированный массив:\n");
+                        printf("\n\n\tОтсортированный массив:\n");
                         printArray(array, size);
 
                         printf("\n\n\tCохранить отсортированный массив в файл?\n\t1) Да\n\t2) Нет\n");
@@ -147,10 +151,12 @@ int main(void)
 
                             if (a_saveChoise[1] == 1)
                             {        
-                                printf("\n\n\tВведите название нового файла: ");
-                                scanf("%s", &name);
+                                printf("\n\n\tВведите название нового файла (меньше 50 символов): ");
+                                scanf("%s", &nameIn);
+                                sprintf(nameOut, "%s.txt", nameIn);
+
                             }
-                            save_toFile(name, array,size,a_saveChoise[1]);
+                            save_toFile(nameOut, array,size,a_saveChoise[1]);
                         }
                     }
                     else if (a_opChoise == 2)
@@ -523,16 +529,18 @@ int printArray(double* array, int size)
     return 0;
 }
 
-double* load_datafile(int choice, int* inSize, double start, double end, double step, TFunc_t func)
+double* load_datafile(char name[100],int choice, int* inSize, double start, double end, double step, TFunc_t func)
 {
     FILE* file;
     double temp,*array = 0;
     int size = 0;
+    char name1[100];
+    sprintf(name1,"%s.txt",name);
 
     switch (choice)
     {
         case 1:
-            if ((file = fopen(SFILENAME, "r")) != NULL)
+            if ((file = fopen(name1, "r")) != NULL)
             {
                 while (fscanf(file, "%lf", &temp) == 1)
                     size++;
@@ -549,7 +557,7 @@ double* load_datafile(int choice, int* inSize, double start, double end, double 
                     if (array == NULL)
                         return NULL;
 
-                    file = fopen(SFILENAME, "r");
+                    file = fopen(name1, "r");
                     for (int i = 0; i < size; i++)
                         fscanf(file, "%lf", &array[i]);
 
@@ -564,7 +572,7 @@ double* load_datafile(int choice, int* inSize, double start, double end, double 
             }
             break;
          case 2:
-            file = fopen(SFILENAME, "w");
+            file = fopen(name1, "w");
 
             array = printTabForArray(func, start, end, step);
             size = (int)(end - start) / step + 1;
@@ -589,7 +597,7 @@ int save_toFile(char* name, double* array, int size,int choice)
 
     if (choice == 1)
     {
-        if (file = fopen(SFILENAME, "w") == NULL)
+        if (file = fopen(name, "w") == NULL)
             return -1;
         for (int i = 0; i < size; i++)
         {
@@ -599,7 +607,7 @@ int save_toFile(char* name, double* array, int size,int choice)
     }
     else
     {
-        if (file = fopen(SFILENAME, "a") == NULL)
+        if (file = fopen(name, "a") == NULL)
             return -1;
         for (int i = 0; i < size; i++)
         {
