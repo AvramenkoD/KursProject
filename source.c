@@ -18,7 +18,6 @@ int chunkV(double);
 double* combSort(double*, int, int);
 double* gnomeSort(double*, int, int);
 int printArray(double*, int);
-int checkInputEr(int, int);
 double* load_datafile(double*,char[100],int, int*, double, double, double, TFunc_t);
 
 
@@ -26,12 +25,11 @@ int main(void)
 {
     //function
     setlocale(LC_ALL, "RUS");
-    int choice, opChoice,objChoice, repeatF = 1, inputEr;
+    int f_choise, op_choise,obj_choise, repeatF = 1, inputEr;
     double x1 = 0, x2 = 0, step = 0;
-    TFunc_t func[2] = { funcY, funcV };
 
     //Array
-    int a_choice, a_opChoise, a_choiceSort[2],a_saveChoise[2],a_choiceOut, size, cnt;
+    int a_choise, a_opChoise, a_choiceSort[2],a_saveChoise[2],a_choiceOut, size, cnt;
     double* array = (double*)malloc(sizeof(double));
     char nameIn[100];
     char nameOut[100];
@@ -58,77 +56,94 @@ int main(void)
         {
             case 1:
                 printf("\n\tВыберите функцию\n");
-                choice = checkInputEr(1, 2) - 1;
+
+                printf("\n\tВаш выбор: ");
+                scanf("\t%d", &f_choise);
             case 2: 
                 puts("\tВыберите объёкта с которым хотите работать:");
                 puts("\t1) Функция (график, табулирование, значение в точке)");
                 puts("\t2) Массив (сортировка, вывести отрицательные элементы)");
-                objChoice = checkInputEr(1, 2);
+
+                printf("\n\tВаш выбор: ");
+                scanf("\t%d", &obj_choise);
             case 3:
-                if (objChoice == 1)
+                if (obj_choise == 1)
                 {
                     puts("\tВыберите операцию:");
                     puts("\t1) Вычислить значение функции в точке");
                     puts("\t2) Протабулировать функцию на интервале");
                     puts("\t3) Построить график функции на интервале");
-                    opChoice = checkInputEr(1, 3);
+
+                    printf("\n\tВаш выбор: ");
+                    scanf("\t%d", &op_choise);
                 }
                 else
                 {
                     printf("\n\tВы хотите:\n\t1) Загрузить массив из файла\n\t2) Создать новый\n");// Имя файл должен указывать пользователь??
-                    a_choice = checkInputEr(1, 2);
+
+                    printf("\n\tВаш выбор: ");
+                    scanf("\t%d", &a_choise);
 
                     printf("\n\n\tВведите название файла (меньше 50 символов): ");
                     scanf("%s", &nameIn);
                     sprintf(nameOut, "%s.txt", nameIn);
 
-                    if (a_choice == 2 || (a_choice == 1 && (array = load_datafile(array,nameOut,a_choice, &size, x1, x2, step, func[choice])) == NULL))
+                    if (a_choise == 1)
+                        array = load_datafile(array, nameOut, a_choise, &size, x1, x2, step, f_choise == 1 ? funcY : funcV);
+
+                    if (a_choise == 2 || array == NULL)
                     {
                         printf("\tДля генерации данных, далее записанных в файл, будет протабулированна функция.");
                         printf("\n\tВведите диапазон и шаг через для табуляции (начало конец шаг): ");
                         scanf("\t%lf %lf %lf", &x1, &x2, &step);
-                        array = load_datafile(array,nameOut,2, &size, x1, x2, step, func[choice]);
+                        array = load_datafile(array,nameOut,2, &size, x1, x2, step, f_choise == 1 ? funcY : funcV);
                     }
+
                     if (array == NULL)
                         return -1;
                 }                 
             case 4:
-                if (objChoice == 1) {
-                    switch (opChoice)
+                if (obj_choise == 1) {
+                    switch (op_choise)
                     {
                         case 1:
                             printf("\n\tВведите x: ");
                             scanf("\t%lf", &x1);
-                            if (func[choice](x1) != NAN)
-                                printf("\n\tРезультат: f(%.3lf) = %.10lf\n", x1, func[choice](x1));
+                            if (cos(x1) != 0)
+                                printf("\n\tРезультат: f(%.3lf) = %.10lf\n", x1, (f_choise == 1 ? funcY : funcV)(x1));
                             else
                                 puts("\tФункция не существует в данной точке.");
                             break;
                         case 2:
                             printf("\tВведите диапазон и шаг через пробел (начало конец шаг): ");
                             scanf("\t%lf %lf %lf", &x1, &x2, &step);
-                            printTab(func[choice], x1, x2, step);
+                            printTab(f_choise == 1 ? funcY : funcV, x1, x2, step);
                             break;
                         case 3:
-                            printf("\tВведите диапазон через пробел (началр конец): ");
+                            printf("\tВведите диапазон через пробел (начало конец): ");
                             scanf("\t%lf %lf", &x1, &x2);
-                            buildGraph(func[choice], x1, x2);
+                            buildGraph(f_choise == 1 ? funcY : funcV, x1, x2);
                             break;
                     }
                 }
                 else
                 {
                     printf("\n\tЧто вы хотите сделать с массивом:\n\t1) Отсортировать\n\t2) Вывести все отрицательные элементы\n");
-                    a_opChoise = checkInputEr(1, 2);
+                    printf("\n\tВаш выбор: ");
+                    scanf("\t%d", &a_opChoise);
 
                     if (a_opChoise == 1) {
                         printf("\n\tКаким алгоритмом сортировки вы хотите отсортировать массив:");
                         printf("\n\t1) Сортировка расчёской\n\t2) Гномья сортировка\n");
-                        a_choiceSort[0] = checkInputEr(1, 2);
+
+                        printf("\n\tВаш выбор: ");
+                        scanf("\t%d", &a_choiceSort[0]);
 
                         printf("\n\tКак вы хотите отсортировать массив:");
                         printf("\n\t1) По убыванию\n\t2) По возрастанию\n");
-                        a_choiceSort[1] = checkInputEr(1, 2);
+
+                        printf("\n\tВаш выбор: ");
+                        scanf("\t%d", &a_choiceSort[1]);
 
                         printf("\n\tИзначальный массив:\n");
                         printArray(array, size);
@@ -142,12 +157,16 @@ int main(void)
                         printArray(array, size);
 
                         printf("\n\n\tCохранить отсортированный массив в файл?\n\t1) Да\n\t2) Нет\n");
-                        a_saveChoise[0] = checkInputEr(1, 2);
+
+                        printf("\n\tВаш выбор: ");
+                        scanf("\t%d", &a_saveChoise[0]);
 
                         if (a_saveChoise == 1)
                         {
                             printf("\n\n\tCохранить в новый файл или добавить в старый файл?\n\t1) Новый\n\t2) Старый\n");
-                            a_saveChoise[1] = checkInputEr(1, 2);
+
+                            printf("\n\tВаш выбор: ");
+                            scanf("\t%d", &a_saveChoise[1]);
 
                             if (a_saveChoise[1] == 1)
                             {        
@@ -163,7 +182,9 @@ int main(void)
                     {
                         printf("\n\tКак вы хотите вывести элементы:");
                         printf("\n\t1) По убыванию\n\t2) По возрастанию\n");
-                        a_choiceOut = checkInputEr(1, 2);
+
+                        printf("\n\tВаш выбор: ");
+                        scanf("\t%d", &a_choiceOut);
 
                         printf("\n\tИзначальный массив:\n");
                         printArray(array, size);
@@ -195,25 +216,28 @@ int main(void)
                 }
                 break;
             case 5:
-                if (objChoice == 1) {
-                    switch (opChoice)
+                if (obj_choise == 1) {
+                    switch (op_choise)
                     {
                         case 1:
-                            printf("\tРезультат: f(%.3lf) = %.10lf\n", x1, func[choice](x1));
+                            if (cos(x1) != 0)
+                                printf("\n\tРезультат: f(%.3lf) = %.10lf\n", x1, (f_choise == 1 ? funcY : funcV)(x1));
+                            else
+                                puts("\tФункция не существует в данной точке.");
                             break;
                         case 2:
-                            array = printTab(func[choice], x1, x2, step);
+                            array = printTab(f_choise == 1 ? funcY : funcV, x1, x2, step);
                             free(array);
                             break;
                         case 3:
-                            buildGraph(func[choice], x1, x2);
+                            buildGraph(f_choise == 1 ? funcY : funcV, x1, x2);
                             break;
                     }
                 }
                 break;
         }
 
-        if (objChoice == 1)
+        if (obj_choise == 1)
         {
             printf("\n\n\t------------------------------------------------------\n");
             repeatF = 0;
@@ -225,7 +249,9 @@ int main(void)
             puts("\t4) Повторить последнюю операцию с новыми данными");
             puts("\t5) Повторить последнюю операцию со старыми данными");
             puts("\t0) Выйти из программы");
-            repeatF = checkInputEr(0, 5);
+
+            printf("\n\tВаш выбор: ");
+            scanf("\t%d", &repeatF);
 
             puts("\t------------------------------------------------------");
             printf("\n\n\n\n\n\n\n");
@@ -240,7 +266,9 @@ int main(void)
             puts("\t3) Вернуться к выбору загрузки данных в массив");
             puts("\t4) Вернуться к выбору операции над массивом");
             puts("\t0) Выйти из программы");
-            repeatF = checkInputEr(0, 4);
+
+            printf("\n\tВаш выбор: ");
+            scanf("\t%d", &repeatF);
 
             puts("\t------------------------------------------------------");
             printf("\n\n\n\n\n\n\n");
@@ -274,16 +302,9 @@ double funcV(double x)
     }
         else
         {
-            if (cos(x) != 0)
-            {
-                return x + log(fabs(cos(x)));
-            }
-            else
-            {
-                return NAN;
-            }
+            return x + log(fabs(cos(x)));
         }
-}
+}// избавиться от NAN
 
 int printTab(TFunc_t pFunc, double x1, double x2, double step)
 {
@@ -295,8 +316,13 @@ int printTab(TFunc_t pFunc, double x1, double x2, double step)
 
     for (double i = x1; i <= x2; i += step)
     {
-        y = pFunc(i);
-        printf("\t| %10.3lf | %26.3lf |\n", i, y);
+        if (pFunc = funcV && cos(i) == 0)
+            printf("\t| %10.3lf |             Не существует |\n", i);
+        else
+        {
+            y = pFunc(i);
+            printf("\t| %10.3lf | %26.3lf |\n", i, y);
+        }
     }
 
     printf("\t-------------------------------------------\n");
@@ -322,7 +348,10 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
 
     for (int i = 0; i < WIDTH; ++i, x += stepX)
     {
-        y[i] = f(x);
+        if (f = funcV && cos(x) == 0);
+        else
+            y[i] = f(x);
+
         if (!i)
         {
             ymin = y[i];
@@ -352,7 +381,10 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
         screenCordY = (int)floor((ymax - y[i]) / stepY + 0.5);
 
         if (screenCordY >= 0 && screenCordY < HEIGHT)
+        {
+            if (f = funcV && cos(x) == 0)
             screen[screenCordY][i] = '*';
+        }
 
         if (i > 0)
         {
@@ -407,29 +439,6 @@ int chunkV(double x)
 }
 
 //functions for array
-
-int checkInputEr(int min, int max)
-{
-    int input = 0;
-    int inputErL;
-
-    do
-    {
-        printf("\n\tВаш выбор: ");
-        scanf("\t%d", &input);
-
-        inputErL = 0;
-        if (input < min || input > max)
-        {
-            printf("\n\t------------------------------------------------------\n\n");
-            puts("\tОшибка: выбран некорректный номер.");
-            inputErL = 1;
-        }
-        printf("\n\t------------------------------------------------------\n\n");
-    } while (inputErL);
-
-    return input;
-}
 
 double* combSort(double* array, int size, int h)
 {
@@ -530,7 +539,7 @@ int printArray(double* array, int size)
 }
 
 double* load_datafile(double* array,char name[100],int choice, int* inSize, double start, double end, double step, TFunc_t func)
-{
+{// дробить 
     FILE* file;
     double temp,*tempPtr = 0;
     int size = 0;
@@ -549,7 +558,7 @@ double* load_datafile(double* array,char name[100],int choice, int* inSize, doub
                 if (!size)
                 {
                     printf("\n\tФайл пуст. Переходим к созданию нового файла\n");
-                    return -2;
+                    return NULL;
                 }
                 else
                 {
@@ -622,25 +631,17 @@ int save_toFile(char* name, double* array, int size,int choice)
 double* printTabForArray(double* array,TFunc_t pFunc, double x1, double x2, double step)
 {
     int cnt = 0;
-    double y;
     double* temp = (double*)realloc(array,sizeof(double) * (int)ceil(((x2 - x1) / step))+1);
+
     if (temp == NULL)
         return NULL;
-    array = temp;
 
-    printf("\n\t-------------------------------------------\n");
-    printf("\t|     x      |           f(x)             |\n");
-    printf("\t-------------------------------------------\n");
+    array = temp;
 
     for (double i = x1; i <= x2; i += step)
     {
-        y = pFunc(i);
-        printf("\t| %10.3lf | %26.3lf |\n", i, y);
-
-        array[cnt] = y;
+        array[cnt] = pFunc(i);
         cnt++;
     }
-
-    printf("\t-------------------------------------------\n");
     return array;
 }
