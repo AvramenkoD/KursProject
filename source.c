@@ -27,6 +27,7 @@ int main(void)
     setlocale(LC_ALL, "RUS");
     int f_choise, op_choise,obj_choise, repeatF = 1, inputEr;
     double x1 = 0, x2 = 0, step = 0;
+    TFunc_t func = NULL;
 
     //Array
     int a_choise, a_opChoise, a_choiceSort[2],a_saveChoise[2],a_choiceOut, size, cnt;
@@ -59,6 +60,8 @@ int main(void)
 
                 printf("\n\tВаш выбор: ");
                 scanf("\t%d", &f_choise);
+
+                func = f_choise == 1 ? funcY : funcV;
             case 2: 
                 puts("\tВыберите объёкта с которым хотите работать:");
                 puts("\t1) Функция (график, табулирование, значение в точке)");
@@ -89,14 +92,14 @@ int main(void)
                     sprintf(nameOut, "%s.txt", nameIn);
 
                     if (a_choise == 1)
-                        array = load_datafile(array, nameOut, a_choise, &size, x1, x2, step, f_choise == 1 ? funcY : funcV);
+                        array = load_datafile(array, nameOut, a_choise, &size, x1, x2, step, func);
 
                     if (a_choise == 2 || array == NULL)
                     {
                         printf("\tДля генерации данных, далее записанных в файл, будет протабулированна функция.");
                         printf("\n\tВведите диапазон и шаг через для табуляции (начало конец шаг): ");
                         scanf("\t%lf %lf %lf", &x1, &x2, &step);
-                        array = load_datafile(array,nameOut,2, &size, x1, x2, step, f_choise == 1 ? funcY : funcV);
+                        array = load_datafile(array,nameOut,2, &size, x1, x2, step, func);
                     }
 
                     if (array == NULL)
@@ -110,19 +113,19 @@ int main(void)
                             printf("\n\tВведите x: ");
                             scanf("\t%lf", &x1);
                             if (cos(x1) != 0)
-                                printf("\n\tРезультат: f(%.3lf) = %.10lf\n", x1, (f_choise == 1 ? funcY : funcV)(x1));
+                                printf("\n\tРезультат: f(%.3lf) = %.10lf\n", x1, func(x1));
                             else
                                 puts("\tФункция не существует в данной точке.");
                             break;
                         case 2:
                             printf("\tВведите диапазон и шаг через пробел (начало конец шаг): ");
                             scanf("\t%lf %lf %lf", &x1, &x2, &step);
-                            printTab(f_choise == 1 ? funcY : funcV, x1, x2, step);
+                            printTab(func, x1, x2, step);
                             break;
                         case 3:
                             printf("\tВведите диапазон через пробел (начало конец): ");
                             scanf("\t%lf %lf", &x1, &x2);
-                            buildGraph(f_choise == 1 ? funcY : funcV, x1, x2);
+                            buildGraph(func, x1, x2);
                             break;
                     }
                 }
@@ -221,16 +224,16 @@ int main(void)
                     {
                         case 1:
                             if (cos(x1) != 0)
-                                printf("\n\tРезультат: f(%.3lf) = %.10lf\n", x1, (f_choise == 1 ? funcY : funcV)(x1));
+                                printf("\n\tРезультат: f(%.3lf) = %.10lf\n", x1, func(x1));
                             else
                                 puts("\tФункция не существует в данной точке.");
                             break;
                         case 2:
-                            array = printTab(f_choise == 1 ? funcY : funcV, x1, x2, step);
+                            array = printTab(func, x1, x2, step);
                             free(array);
                             break;
                         case 3:
-                            buildGraph(f_choise == 1 ? funcY : funcV, x1, x2);
+                            buildGraph(func, x1, x2);
                             break;
                     }
                 }
@@ -304,7 +307,7 @@ double funcV(double x)
         {
             return x + log(fabs(cos(x)));
         }
-}// избавиться от NAN
+}
 
 int printTab(TFunc_t pFunc, double x1, double x2, double step)
 {
@@ -348,7 +351,8 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
 
     for (int i = 0; i < WIDTH; ++i, x += stepX)
     {
-        if (f = funcV && cos(x) == 0);
+        if (f = funcV && x < 0 && cos(x) == 0)
+            y[i] = 1;
         else
             y[i] = f(x);
 
@@ -379,18 +383,21 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
         double curr_x = xStart + i * stepX;
 
         screenCordY = (int)floor((ymax - y[i]) / stepY + 0.5);
-
+        
+        // Заполнение массива + обработка ОДЗ
         if (screenCordY >= 0 && screenCordY < HEIGHT)
         {
-            if (f = funcV && cos(x) == 0)
-            screen[screenCordY][i] = '*';
+            if (f = funcV && curr_x < 0 && y[i] == 0)
+                screen[screenCordY][i] = ' ';
+            else
+                screen[screenCordY][i] = '*';
         }
 
         if (i > 0)
         {
             int doConnect = 1;
 
-            if (f == funcV)
+            if (f = funcV)
             {
                 double oldX = xStart + (i - 1) * stepX;
                 if (chunkV(oldX) != chunkV(curr_x))
