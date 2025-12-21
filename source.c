@@ -12,14 +12,14 @@ double funcY(double);
 double funcV(double);
 
 int printTab(TFunc_t, double, double, double);
-double* printTabForArray(double*,TFunc_t, double, double, double);
+double* TabForArray(double*,TFunc_t, double, double, double);
 int buildGraph(TFunc_t, double, double);
 int chunkV(double);
 double* combSort(double*, int, int);
 double* gnomeSort(double*, int, int);
 int printArray(double*, int);
-double* load_datafile(double*,char[100],int, int*, double, double, double, TFunc_t);
-
+double* load_datafile(double*,char*, int*);
+double* generate_NewData(double*, char*, double, double, double, TFunc_t, int*);
 
 int main(void)
 {
@@ -92,14 +92,14 @@ int main(void)
                     sprintf(nameOut, "%s.txt", nameIn);
 
                     if (a_choise == 1)
-                        array = load_datafile(array, nameOut, a_choise, &size, x1, x2, step, func);
+                        array = load_datafile(array, nameOut, &size);
 
                     if (a_choise == 2 || array == NULL)
                     {
                         printf("\tДля генерации данных, далее записанных в файл, будет протабулированна функция.");
                         printf("\n\tВведите диапазон и шаг через для табуляции (начало конец шаг): ");
                         scanf("\t%lf %lf %lf", &x1, &x2, &step);
-                        array = load_datafile(array,nameOut,2, &size, x1, x2, step, func);
+                        array = generate_NewData(array,nameOut, x1, x2, step, func, &size);
                     }
 
                     if (array == NULL)
@@ -319,7 +319,7 @@ int printTab(TFunc_t pFunc, double x1, double x2, double step)
 
     for (double i = x1; i <= x2; i += step)
     {
-        if (pFunc = funcV && cos(i) == 0)
+        if (pFunc == funcV && cos(i) == 0)
             printf("\t| %10.3lf |             Не существует |\n", i);
         else
         {
@@ -351,7 +351,7 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
 
     for (int i = 0; i < WIDTH; ++i, x += stepX)
     {
-        if (f = funcV && x < 0 && cos(x) == 0)
+        if (f == funcV && x < 0 && cos(x) == 0)
             y[i] = 1;
         else
             y[i] = f(x);
@@ -387,7 +387,7 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
         // Заполнение массива + обработка ОДЗ
         if (screenCordY >= 0 && screenCordY < HEIGHT)
         {
-            if (f = funcV && curr_x < 0 && y[i] == 0)
+            if (f == funcV && curr_x < 0 && y[i] == 0)
                 screen[screenCordY][i] = ' ';
             else
                 screen[screenCordY][i] = '*';
@@ -397,7 +397,7 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
         {
             int doConnect = 1;
 
-            if (f = funcV)
+            if (f == funcV)
             {
                 double oldX = xStart + (i - 1) * stepX;
                 if (chunkV(oldX) != chunkV(curr_x))
@@ -447,6 +447,7 @@ int chunkV(double x)
 
 //functions for array
 
+//Расчёской (англ. comb)
 double* combSort(double* array, int size, int h)
 {
     double temp;
@@ -493,11 +494,12 @@ double* combSort(double* array, int size, int h)
     return array;
 }
 
+// Гномья
 double* gnomeSort(double* array, int size, int h)
 {
     double temp;
     int i = 1;
-
+    //Убывание
     if (h == 1) {
         while (i < size)
         {
@@ -514,7 +516,7 @@ double* gnomeSort(double* array, int size, int h)
             }
         }
     }
-    else if (h == 2)
+    else if (h == 2)// Возрастание
     {
         while (i < size)
         {
@@ -545,65 +547,70 @@ int printArray(double* array, int size)
     return 0;
 }
 
-double* load_datafile(double* array,char name[100],int choice, int* inSize, double start, double end, double step, TFunc_t func)
-{// дробить 
+double* load_datafile(double* array,char* name, int* inSize)
+{
     FILE* file;
     double temp,*tempPtr = 0;
     int size = 0;
     char name1[100];
     sprintf(name1,"%s.txt",name);
 
-    switch (choice)
+    if ((file = fopen(name1, "r")) != NULL)
     {
-        case 1:
-            if ((file = fopen(name1, "r")) != NULL)
-            {
-                while (fscanf(file, "%lf", &temp) == 1)
-                    size++;
-                fclose(file);
+        while (fscanf(file, "%lf", &temp) == 1)
+            size++;
+        fclose(file);
 
-                if (!size)
-                {
-                    printf("\n\tФайл пуст. Переходим к созданию нового файла\n");
-                    return NULL;
-                }
-                else
-                {
-                    tempPtr = (double*)realloc(array,sizeof(double) * size);
-                    if (tempPtr == NULL)
-                        return NULL;
-                    array = tempPtr;
-
-                    file = fopen(name1, "r");
-                    for (int i = 0; i < size; i++)
-                        fscanf(file, "%lf", &array[i]);
-
-                    fclose(file);
-                    break;
-                }
-            }
-            else
-            {
-                printf("\n\tФайл не существует. Переходим к созданию нового файла\n");
+        if (!size)
+        {
+            printf("\n\tФайл пуст. Переходим к созданию нового файла\n");
+            return NULL;
+        }
+        else
+        {
+            tempPtr = (double*)realloc(array,sizeof(double) * size);
+            if (tempPtr == NULL)
                 return NULL;
-            }
-            break;
-         case 2:
-            file = fopen(name1, "w");
+            array = tempPtr;
 
-            array = printTabForArray(array,func, start, end, step);
-            size = (int)(end - start) / step + 1;
-
+            file = fopen(name1, "r");
             for (int i = 0; i < size; i++)
-            {
-                fprintf(file, "%lf ", array[i]);
-            }
+                fscanf(file, "%lf", &array[i]);
 
             fclose(file);
-            printf("\n\tСтолбец значений функции был записан в файл");
-            printf("\n\t-------------------------------------------\n");
-            break;
+        }
     }
+    else
+    {
+        printf("\n\tФайл не существует. Переходим к созданию нового файла\n");
+        return NULL;
+    }
+    *inSize = size;
+    return array;
+}
+
+double* generate_NewData(double* array, char* name,double start, double end, double step, TFunc_t func, int* inSize)
+{
+    FILE* file;
+    double temp, *tempPtr = NULL;
+    int size = 0;
+    char name1[100];
+    sprintf(name1, "%s.txt", name);
+
+    file = fopen(name1, "w");
+
+    array = TabForArray(array, func, start, end, step);
+    size = (int)(end - start) / step + 1;
+
+    for (int i = 0; i < size; i++)
+    {
+        fprintf(file, "%lf ", array[i]);
+    }
+
+    fclose(file);
+    printf("\n\tСтолбец значений функции был записан в файл");
+    printf("\n\t-------------------------------------------\n");
+
     *inSize = size;
     return array;
 }
@@ -635,7 +642,7 @@ int save_toFile(char* name, double* array, int size,int choice)
     return 0;
 }
 
-double* printTabForArray(double* array,TFunc_t pFunc, double x1, double x2, double step)
+double* TabForArray(double* array,TFunc_t pFunc, double x1, double x2, double step)
 {
     int cnt = 0;
     double* temp = (double*)realloc(array,sizeof(double) * (int)ceil(((x2 - x1) / step))+1);
@@ -647,8 +654,15 @@ double* printTabForArray(double* array,TFunc_t pFunc, double x1, double x2, doub
 
     for (double i = x1; i <= x2; i += step)
     {
-        array[cnt] = pFunc(i);
-        cnt++;
+        if (pFunc == funcV && chunkV(i) == 1 && cos(i) == 0)
+        {
+            array[cnt] = 1. * (rand() % 1000 - 1000) * rand()/RAND_MAX;
+        }
+        else 
+        {
+            array[cnt] = pFunc(i);
+            cnt++;
+        }
     }
     return array;
 }
