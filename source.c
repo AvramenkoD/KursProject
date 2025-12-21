@@ -60,6 +60,7 @@ int main(void)
 
                 printf("\n\tВаш выбор: ");
                 scanf("\t%d", &f_choise);
+                printf("\t-------------------------------------------\n");
 
                 func = f_choise == 1 ? funcY : funcV;
             case 2: 
@@ -69,6 +70,7 @@ int main(void)
 
                 printf("\n\tВаш выбор: ");
                 scanf("\t%d", &obj_choise);
+                printf("\t-------------------------------------------\n");
             case 3:
                 if (obj_choise == 1)
                 {
@@ -79,6 +81,7 @@ int main(void)
 
                     printf("\n\tВаш выбор: ");
                     scanf("\t%d", &op_choise);
+                    printf("\t-------------------------------------------\n");
                 }
                 else
                 {
@@ -86,10 +89,12 @@ int main(void)
 
                     printf("\n\tВаш выбор: ");
                     scanf("\t%d", &a_choise);
+                    printf("\t-------------------------------------------\n");
 
                     printf("\n\n\tВведите название файла (меньше 50 символов): ");
                     scanf("%s", &nameIn);
                     sprintf(nameOut, "%s.txt", nameIn);
+                    printf("\t-------------------------------------------\n");
 
                     if (a_choise == 1)
                         array = load_datafile(array, nameOut, &size);
@@ -112,10 +117,10 @@ int main(void)
                         case 1:
                             printf("\n\tВведите x: ");
                             scanf("\t%lf", &x1);
-                            if (cos(x1) != 0)
-                                printf("\n\tРезультат: f(%.3lf) = %.10lf\n", x1, func(x1));
-                            else
+                            if (func == funcV && cos(x1) == 0)
                                 puts("\tФункция не существует в данной точке.");
+                            else
+                                printf("\n\tРезультат: f(%.3lf) = %.10lf\n", x1, func(x1));
                             break;
                         case 2:
                             printf("\tВведите диапазон и шаг через пробел (начало конец шаг): ");
@@ -134,6 +139,7 @@ int main(void)
                     printf("\n\tЧто вы хотите сделать с массивом:\n\t1) Отсортировать\n\t2) Вывести все отрицательные элементы\n");
                     printf("\n\tВаш выбор: ");
                     scanf("\t%d", &a_opChoise);
+                    printf("\t-------------------------------------------\n");
 
                     if (a_opChoise == 1) {
                         printf("\n\tКаким алгоритмом сортировки вы хотите отсортировать массив:");
@@ -141,19 +147,21 @@ int main(void)
 
                         printf("\n\tВаш выбор: ");
                         scanf("\t%d", &a_choiceSort[0]);
+                        printf("\t-------------------------------------------\n");
 
                         printf("\n\tКак вы хотите отсортировать массив:");
                         printf("\n\t1) По убыванию\n\t2) По возрастанию\n");
 
                         printf("\n\tВаш выбор: ");
                         scanf("\t%d", &a_choiceSort[1]);
+                        printf("\t-------------------------------------------\n");
 
                         printf("\n\tИзначальный массив:\n");
                         printArray(array, size);
 
                         if (a_choiceSort[0] == 1)
                             combSort(array, size, a_choiceSort[1]);
-                        else if (a_choiceSort[0] == 2)
+                        else
                             gnomeSort(array, size, a_choiceSort[1]);
 
                         printf("\n\n\tОтсортированный массив:\n");
@@ -163,13 +171,15 @@ int main(void)
 
                         printf("\n\tВаш выбор: ");
                         scanf("\t%d", &a_saveChoise[0]);
+                        printf("\t-------------------------------------------\n");
 
-                        if (a_saveChoise == 1)
+                        if (a_saveChoise[0] == 1)
                         {
                             printf("\n\n\tCохранить в новый файл или добавить в старый файл?\n\t1) Новый\n\t2) Старый\n");
 
                             printf("\n\tВаш выбор: ");
                             scanf("\t%d", &a_saveChoise[1]);
+                            printf("\t-------------------------------------------\n");
 
                             if (a_saveChoise[1] == 1)
                             {        
@@ -181,13 +191,14 @@ int main(void)
                             save_toFile(nameOut, array,size,a_saveChoise[1]);
                         }
                     }
-                    else if (a_opChoise == 2)
+                    else
                     {
                         printf("\n\tКак вы хотите вывести элементы:");
                         printf("\n\t1) По убыванию\n\t2) По возрастанию\n");
 
                         printf("\n\tВаш выбор: ");
                         scanf("\t%d", &a_choiceOut);
+                        printf("\t-------------------------------------------\n");
 
                         printf("\n\tИзначальный массив:\n");
                         printArray(array, size);
@@ -195,25 +206,16 @@ int main(void)
                         combSort(array, size, a_choiceOut);
 
                         cnt = 0;
+                        printf("\n\n\tОтсортированные отрицательные элементы:\n\t");
                         for (int i = 0; i < size; i++)
                         {
                             if (array[i] < 0)
                             {
                                 cnt++;
+                                printf("%.3lf ", array[i]);
                             }
                         }
-                        if (cnt)
-                        {
-                            printf("\n\n\tОтсортированные отрицательные элементы:\n\t");
-                            for (int i = 0; i < size; i++)
-                            {
-                                if (array[i] < 0)
-                                {
-                                    printf("%.3lf ", array[i]);
-                                }
-                            }
-                        }
-                        else
+                        if (cnt == 0)
                             printf("\n\n\tВ массиве нет отрицательных элемментов.");
                     }
                 }
@@ -337,8 +339,8 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
     char screen[HEIGHT][WIDTH];
     double x, y[WIDTH];
     double ymin, ymax;
-    double stepX, stepY;
-    int xZero, yZero, screenCordY;
+    double stepX, stepY, curr_x;
+    int xZero, yZero, screenCordY,oldScreenCordY;
 
     if (xStart > xEnd || xStart == xEnd)
     {
@@ -376,18 +378,18 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
         for (int i = 0; i < WIDTH; ++i)
             screen[j][i] = (j == yZero ? '-' : (i == xZero ? '|' : ' '));
 
-    int oldScreenCordY = -1;
+    oldScreenCordY = -1;
 
     for (int i = 0; i < WIDTH; ++i)
     {
-        double curr_x = xStart + i * stepX;
+        curr_x = xStart + i * stepX;
 
         screenCordY = (int)floor((ymax - y[i]) / stepY + 0.5);
         
         // Заполнение массива + обработка ОДЗ
         if (screenCordY >= 0 && screenCordY < HEIGHT)
         {
-            if (f == funcV && curr_x < 0 && y[i] == 0)
+            if (f == funcV && curr_x < 0 && y[i] == 1)
                 screen[screenCordY][i] = ' ';
             else
                 screen[screenCordY][i] = '*';
@@ -408,11 +410,12 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
             {
                 int a = oldScreenCordY;
                 int b = screenCordY;
+                int temp;
                 if (a > b)
                 {
-                    int t = a;
+                    temp = a;
                     a = b;
-                    b = t; 
+                    b = temp; 
                 }
 
                 for (int k = a; k <= b; ++k)
@@ -426,10 +429,10 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
 
     for (int j = 0; j < HEIGHT; ++j)
     {
-        putchar('\t');
+        printf("\t");
         for (int i = 0; i < WIDTH; ++i)
-            putchar(screen[j][i]);
-        putchar('\n');
+            printf("%c",screen[j][i]);
+        printf("\n");
     }
 
     return 0;
@@ -452,44 +455,45 @@ double* combSort(double* array, int size, int h)
 {
     double temp;
     int step = size, cnt = 0;
-    switch (h)
+    if (h == 1)
     {
-        case 1:
-            while (step > 1 || cnt)
-            {
-                cnt = 0;
-                step /= 1.247;
-                step = step < 1 ? 1 : step;
+        while (step > 1 || cnt)
+        {
+            cnt = 0;
+            step = step < 1 ? 1 : step;
 
-                for (int i = 0; i + step < size; i++)
+            for (int i = 0; i + step < size; i++)
+            {
+                if (array[i] < array[i + step])
                 {
-                    if (array[i] < array[i + step])
-                    {
-                        temp = array[i];
-                        array[i] = array[i + step];
-                        array[i + step] = temp;
-                        cnt++;
-                    }
+                    temp = array[i];
+                    array[i] = array[i + step];
+                    array[i + step] = temp;
+                    cnt++;
                 }
             }
-        case 2:
-            while (step > 1 || cnt)
-            {
-                cnt = 0;
-                step /= 1.247;
-                step = step < 1 ? 1 : step;
+            step /= 1.247;
+        }
+    }
+    else
+    {
+        while (step > 1 || cnt)
+        {
+            cnt = 0;
+            step /= 1.247;
+            step = step < 1 ? 1 : step;
 
-                for (int i = 0; i + step < size; i++)
+            for (int i = 0; i + step < size; i++)
+            {
+                if (array[i] > array[i + step])
                 {
-                    if (array[i] > array[i + step])
-                    {
-                        temp = array[i];
-                        array[i] = array[i + step];
-                        array[i + step] = temp;
-                        cnt++;
-                    }
+                    temp = array[i];
+                    array[i] = array[i + step];
+                    array[i + step] = temp;
+                    cnt++;
                 }
             }
+        } 
     }
     return array;
 }
@@ -516,7 +520,7 @@ double* gnomeSort(double* array, int size, int h)
             }
         }
     }
-    else if (h == 2)// Возрастание
+    else// Возрастание
     {
         while (i < size)
         {
@@ -621,7 +625,7 @@ int save_toFile(char* name, double* array, int size,int choice)
 
     if (choice == 1)
     {
-        if (file = fopen(name, "w") == NULL)
+        if ((file = fopen(name, "w")) == NULL)
             return -1;
         for (int i = 0; i < size; i++)
         {
@@ -631,7 +635,7 @@ int save_toFile(char* name, double* array, int size,int choice)
     }
     else
     {
-        if (file = fopen(name, "a") == NULL)
+        if ((file = fopen(name, "a")) == NULL)
             return -1;
         for (int i = 0; i < size; i++)
         {
