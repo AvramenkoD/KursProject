@@ -96,8 +96,9 @@ int main(void)
                     sprintf(nameOut, "%s.txt", nameIn);
                     printf("\t-------------------------------------------\n");
 
-                    if (a_choise == 1)
+                    if (a_choise == 1) {
                         array = load_datafile(array, nameOut, &size);
+                    }
 
                     if (a_choise == 2 || array == NULL)
                     {
@@ -107,8 +108,9 @@ int main(void)
                         array = generate_NewData(array,nameOut, x1, x2, step, func, &size);
                     }
 
-                    if (array == NULL)
+                    if (array == NULL) {
                         return -1;
+                    }
                 }                 
             case 4:
                 if (obj_choise == 1) {
@@ -160,10 +162,14 @@ int main(void)
                         printArray(array, size);
 
                         if (a_choiceSort[0] == 1)
+                        {
                             combSort(array, size, a_choiceSort[1]);
+                        }
                         else
+                        {
                             gnomeSort(array, size, a_choiceSort[1]);
-
+                        }
+               
                         printf("\n\n\tОтсортированный массив:\n");
                         printArray(array, size);
 
@@ -215,8 +221,9 @@ int main(void)
                                 printf("%.3lf ", array[i]);
                             }
                         }
-                        if (cnt == 0)
+                        if (cnt == 0) {
                             printf("\n\n\tВ массиве нет отрицательных элемментов.");
+                        }
                     }
                 }
                 break;
@@ -280,6 +287,8 @@ int main(void)
         }
 
     } while (repeatF);
+
+    free(array);
     return 0;
 }
 
@@ -322,7 +331,9 @@ int printTab(TFunc_t pFunc, double x1, double x2, double step)
     for (double i = x1; i <= x2; i += step)
     {
         if (pFunc == funcV && cos(i) == 0)
+        {
             printf("\t| %10.3lf |             Не существует |\n", i);
+        }
         else
         {
             y = pFunc(i);
@@ -331,6 +342,7 @@ int printTab(TFunc_t pFunc, double x1, double x2, double step)
     }
 
     printf("\t-------------------------------------------\n");
+
     return 0;
 }
 
@@ -354,19 +366,28 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
     for (int i = 0; i < WIDTH; ++i, x += stepX)
     {
         if (f == funcV && x < 0 && cos(x) == 0)
+        {
             y[i] = 1;
-        else
+        }
+        else 
+        {
             y[i] = f(x);
+        }
 
         if (!i)
         {
             ymin = y[i];
             ymax = y[i];
         }
+
         if (y[i] < ymin)
+        {
             ymin = y[i];
+        }
         if (y[i] > ymax)
+        {
             ymax = y[i];
+        }
     }
 
     stepY = (ymax - ymin) / (HEIGHT - 1);
@@ -390,9 +411,13 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
         if (screenCordY >= 0 && screenCordY < HEIGHT)
         {
             if (f == funcV && curr_x < 0 && y[i] == 1)
+            {
                 screen[screenCordY][i] = ' ';
+            }
             else
+            {
                 screen[screenCordY][i] = '*';
+            }
         }
 
         if (i > 0)
@@ -403,7 +428,9 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
             {
                 double oldX = xStart + (i - 1) * stepX;
                 if (chunkV(oldX) != chunkV(curr_x))
+                {
                     doConnect = 0;
+                }
             }
 
             if (doConnect)
@@ -420,7 +447,9 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
 
                 for (int k = a; k <= b; ++k)
                     if (k >= 0 && k < HEIGHT)
+                    {
                         screen[k][i] = '*';
+                    }
             }
         }
 
@@ -441,11 +470,17 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
 int chunkV(double x)
 {
     if (x > 0.75)
+    {
         return 3;
+    }
     else if (x >= 0)
+    {
         return 2;
+    }
         else
+        {
             return 1;
+        }
 }
 
 //functions for array
@@ -460,6 +495,7 @@ double* combSort(double* array, int size, int h)
         while (step > 1 || cnt)
         {
             cnt = 0;
+            step /= 1.247;
             step = step < 1 ? 1 : step;
 
             for (int i = 0; i + step < size; i++)
@@ -472,7 +508,6 @@ double* combSort(double* array, int size, int h)
                     cnt++;
                 }
             }
-            step /= 1.247;
         }
     }
     else
@@ -573,8 +608,10 @@ double* load_datafile(double* array,char* name, int* inSize)
         else
         {
             tempPtr = (double*)realloc(array,sizeof(double) * size);
-            if (tempPtr == NULL)
+            if (tempPtr == NULL) 
+            {
                 return NULL;
+            }
             array = tempPtr;
 
             file = fopen(name1, "r");
@@ -626,7 +663,9 @@ int save_toFile(char* name, double* array, int size,int choice)
     if (choice == 1)
     {
         if ((file = fopen(name, "w")) == NULL)
+        {
             return -1;
+        }
         for (int i = 0; i < size; i++)
         {
             fprintf(file, "%lf ", array[i]);
@@ -636,7 +675,9 @@ int save_toFile(char* name, double* array, int size,int choice)
     else
     {
         if ((file = fopen(name, "a")) == NULL)
+        {
             return -1;
+        }
         for (int i = 0; i < size; i++)
         {
             fprintf(file, "%lf ", array[i]);
@@ -652,7 +693,9 @@ double* TabForArray(double* array,TFunc_t pFunc, double x1, double x2, double st
     double* temp = (double*)realloc(array,sizeof(double) * (int)ceil(((x2 - x1) / step))+1);
 
     if (temp == NULL)
+    {
         return NULL;
+    }
 
     array = temp;
 
