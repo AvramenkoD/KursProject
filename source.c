@@ -23,17 +23,18 @@ double* generate_NewData(double*, char*, double, double, double, TFunc_t, int*);
 
 int main()
 {
-    //function
-    setlocale(LC_ALL, "RUS");
+    /* Функции */
     int f_choise, op_choise,obj_choise, repeatF = 1, inputEr;
     double x1 = 0, x2 = 0, step = 0;
     TFunc_t func = NULL;
 
-    //Array
+    /* Массив */
     int a_choise, a_opChoise, a_choiceSort[2],a_saveChoise[2],a_choiceOut, size, cnt;
     double* array = (double*)malloc(sizeof(double));
     char nameIn[100];
     char nameOut[100];
+
+    setlocale(LC_ALL, "RUS");
 
     puts("\t\t-----------------------------------------");
     puts("\t\t| Курсовой проект                       |");
@@ -51,15 +52,14 @@ int main()
     puts("\t  |           при x < 0            -> x + ln(|cos(x)|) |");
     puts("\t  ------------------------------------------------------");
 
-    do
-    {
-        switch (repeatF)
-        {
+    do {
+        switch (repeatF) {
             case 1:
                 printf("\n\tВыберите функцию\n");
 
                 printf("\n\tВаш выбор: ");
                 scanf("\t%d", &f_choise);
+
                 printf("\t-------------------------------------------\n");
 
                 func = f_choise == 1 ? funcY : funcV;
@@ -70,10 +70,10 @@ int main()
 
                 printf("\n\tВаш выбор: ");
                 scanf("\t%d", &obj_choise);
+
                 printf("\t-------------------------------------------\n");
             case 3:
-                if (obj_choise == 1)
-                {
+                if (obj_choise == 1) {
                     puts("\tВыберите операцию:");
                     puts("\t1) Вычислить значение функции в точке");
                     puts("\t2) Протабулировать функцию на интервале");
@@ -81,30 +81,32 @@ int main()
 
                     printf("\n\tВаш выбор: ");
                     scanf("\t%d", &op_choise);
+
                     printf("\t-------------------------------------------\n");
                 }
-                else
-                {
-                    printf("\n\tВы хотите:\n\t1) Загрузить массив из файла\n\t2) Создать новый\n");// Имя файл должен указывать пользователь??
+                else {
+                    printf("\n\tВы хотите:\n\t1) Загрузить массив из файла\n\t2) Создать новый\n");
 
                     printf("\n\tВаш выбор: ");
                     scanf("\t%d", &a_choise);
+
                     printf("\t-------------------------------------------\n");
 
                     printf("\n\n\tВведите название файла (меньше 50 символов): ");
                     scanf("%s", &nameIn);
                     sprintf(nameOut, "%s.txt", nameIn);
+
                     printf("\t-------------------------------------------\n");
 
                     if (a_choise == 1) {
                         array = load_datafile(array, nameOut, &size);
                     }
 
-                    if (a_choise == 2 || array == NULL)
-                    {
+                    if (a_choise == 2 || array == NULL) {
                         printf("\tДля генерации данных, далее записанных в файл, будет протабулированна функция.");
                         printf("\n\tВведите диапазон и шаг через для табуляции (начало конец шаг): ");
                         scanf("\t%lf %lf %lf", &x1, &x2, &step);
+
                         array = generate_NewData(array,nameOut, x1, x2, step, func, &size);
                     }
 
@@ -114,15 +116,16 @@ int main()
                 }                 
             case 4:
                 if (obj_choise == 1) {
-                    switch (op_choise)
-                    {
+                    switch (op_choise) {
                         case 1:
                             printf("\n\tВведите x: ");
                             scanf("\t%lf", &x1);
-                            if (func == funcV && cos(x1) == 0)
+                            if (func == funcV && cos(x1) == 0) {
                                 puts("\tФункция не существует в данной точке.");
-                            else
+                            }
+                            else {
                                 printf("\n\tРезультат: f(%.3lf) = %.10lf\n", x1, func(x1));
+                            }
                             break;
                         case 2:
                             printf("\tВведите диапазон и шаг через пробел (начало конец шаг): ");
@@ -136,8 +139,7 @@ int main()
                             break;
                     }
                 }
-                else
-                {
+                else {
                     printf("\n\tЧто вы хотите сделать с массивом:\n\t1) Отсортировать\n\t2) Вывести все отрицательные элементы\n");
                     printf("\n\tВаш выбор: ");
                     scanf("\t%d", &a_opChoise);
@@ -161,12 +163,10 @@ int main()
                         printf("\n\tИзначальный массив:\n");
                         printArray(array, size);
 
-                        if (a_choiceSort[0] == 1)
-                        {
+                        if (a_choiceSort[0] == 1) {
                             combSort(array, size, a_choiceSort[1]);
                         }
-                        else
-                        {
+                        else {
                             gnomeSort(array, size, a_choiceSort[1]);
                         }
                
@@ -179,16 +179,14 @@ int main()
                         scanf("\t%d", &a_saveChoise[0]);
                         printf("\t-------------------------------------------\n");
 
-                        if (a_saveChoise[0] == 1)
-                        {
+                        if (a_saveChoise[0] == 1) {
                             printf("\n\n\tCохранить в новый файл или добавить в старый файл?\n\t1) Новый\n\t2) Старый\n");
 
                             printf("\n\tВаш выбор: ");
                             scanf("\t%d", &a_saveChoise[1]);
                             printf("\t-------------------------------------------\n");
 
-                            if (a_saveChoise[1] == 1)
-                            {        
+                            if (a_saveChoise[1] == 1) {        
                                 printf("\n\n\tВведите название нового файла (меньше 50 символов): ");
                                 scanf("%s", &nameIn);
                                 sprintf(nameOut, "%s.txt", nameIn);
@@ -197,8 +195,7 @@ int main()
                             save_toFile(nameOut, array,size,a_saveChoise[1]);
                         }
                     }
-                    else
-                    {
+                    else {
                         printf("\n\tКак вы хотите вывести элементы:");
                         printf("\n\t1) По убыванию\n\t2) По возрастанию\n");
 
@@ -213,10 +210,8 @@ int main()
 
                         cnt = 0;
                         printf("\n\n\tОтсортированные отрицательные элементы:\n\t");
-                        for (int i = 0; i < size; i++)
-                        {
-                            if (array[i] < 0)
-                            {
+                        for (int i = 0; i < size; i++) {
+                            if (array[i] < 0) {
                                 cnt++;
                                 printf("%.3lf ", array[i]);
                             }
@@ -229,13 +224,14 @@ int main()
                 break;
             case 5:
                 if (obj_choise == 1) {
-                    switch (op_choise)
-                    {
+                    switch (op_choise) {
                         case 1:
-                            if (cos(x1) != 0)
+                            if (cos(x1) != 0) {
                                 printf("\n\tРезультат: f(%.3lf) = %.10lf\n", x1, func(x1));
-                            else
-                                puts("\tФункция не существует в данной точке.");
+                            }
+                            else {
+                                puts("\tФункция не существует в данной точке.");  
+                            }
                             break;
                         case 2:
                             array = printTab(func, x1, x2, step);
@@ -249,8 +245,7 @@ int main()
                 break;
         }
 
-        if (obj_choise == 1)
-        {
+        if (obj_choise == 1) {
             printf("\n\n\t------------------------------------------------------\n");
             repeatF = 0;
 
@@ -268,8 +263,7 @@ int main()
             puts("\t------------------------------------------------------");
             printf("\n\n\n\n\n\n\n");
         }
-        else
-        {
+        else {
             printf("\n\n\t------------------------------------------------------\n");
 
             puts("\tВыберите действие:");
@@ -292,34 +286,30 @@ int main()
     return 0;
 }
 
-// Функция Y(x) = e^(cos(x)) * cos(sin(x))
+/* Функция Y(x) = e ^ (cos(x)) * cos(sin(x)) */
 double funcY(double x)
 {
     return exp(cos(x)) * cos(sin(x));
 }
 
-/*------------------------------------------------------------
- * Кусочно-заданная функция V(x):
- *  x > 0.75        -> x + 1
- *  0 <= x <= 0.75  -> 1 - x^5
- *  x < 0           -> x + ln(|cos(x)|)
- *------------------------------------------------------------*/
+/* Кусочно-заданная функция V(x):
+   x > 0.75        -> x + 1
+   0 <= x <= 0.75  -> 1 - x^5
+   x < 0           -> x + ln(|cos(x)|) */
 double funcV(double x)
 {
-    if (x > 0.75)
-    {
+    if (x > 0.75) {
         return x + 1;
     }
-    else if (x >= 0)
-    {
+    else if (x >= 0) {
         return 1 - pow(x, 5);
     }
-        else
-        {
+        else {
             return x + log(fabs(cos(x)));
         }
 }
 
+/* Табуляция функции */
 int printTab(TFunc_t pFunc, double x1, double x2, double step)
 {
     double y;
@@ -328,14 +318,11 @@ int printTab(TFunc_t pFunc, double x1, double x2, double step)
     printf("\t|     x      |           f(x)             |\n");
     printf("\t-------------------------------------------\n");
 
-    for (double i = x1; i <= x2; i += step)
-    {
-        if (pFunc == funcV && cos(i) == 0)
-        {
+    for (double i = x1; i <= x2; i += step) {
+        if (pFunc == funcV && cos(i) == 0) {
             printf("\t| %10.3lf |             Не существует |\n", i);
         }
-        else
-        {
+        else {
             y = pFunc(i);
             printf("\t| %10.3lf | %26.3lf |\n", i, y);
         }
@@ -346,6 +333,7 @@ int printTab(TFunc_t pFunc, double x1, double x2, double step)
     return 0;
 }
 
+/* Построение графика функции */
 int buildGraph(TFunc_t f, double xStart, double xEnd)
 {
     char screen[HEIGHT][WIDTH];
@@ -353,39 +341,34 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
     double ymin, ymax;
     double stepX, stepY, curr_x;
     int xZero, yZero, screenCordY,oldScreenCordY;
+    int doConnect, a, b, c, temp;
 
-    if (xStart > xEnd || xStart == xEnd)
-    {
+    if (xStart > xEnd || xStart == xEnd) {
         printf("\n\tОшибка входных данных");
         return -1;
     }
+
     stepX = (xEnd - xStart) / (WIDTH - 1);
 
     x = xStart;
 
-    for (int i = 0; i < WIDTH; ++i, x += stepX)
-    {
-        if (f == funcV && x < 0 && cos(x) == 0)
-        {
+    for (int i = 0; i < WIDTH; ++i, x += stepX) {
+        if (f == funcV && x < 0 && cos(x) == 0) {
             y[i] = 1;
         }
-        else 
-        {
+        else  {
             y[i] = f(x);
         }
 
-        if (!i)
-        {
+        if (!i) {
             ymin = y[i];
             ymax = y[i];
         }
 
-        if (y[i] < ymin)
-        {
+        if (y[i] < ymin) {
             ymin = y[i];
         }
-        if (y[i] > ymax)
-        {
+        if (y[i] > ymax) {
             ymax = y[i];
         }
     }
@@ -395,72 +378,64 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
     xZero = (int)floor((0.0 - xStart) / stepX + 0.5);
 
 
-    for (int j = 0; j < HEIGHT; ++j)
-        for (int i = 0; i < WIDTH; ++i)
+    for (int j = 0; j < HEIGHT; ++j) {
+        for (int i = 0; i < WIDTH; ++i) {
             screen[j][i] = (j == yZero ? '-' : (i == xZero ? '|' : ' '));
-
+        }
+    }
     oldScreenCordY = -1;
 
-    for (int i = 0; i < WIDTH; ++i)
-    {
+    for (int i = 0; i < WIDTH; ++i) {
         curr_x = xStart + i * stepX;
 
         screenCordY = (int)floor((ymax - y[i]) / stepY + 0.5);
         
-        // Заполнение массива + обработка ОДЗ
-        if (screenCordY >= 0 && screenCordY < HEIGHT)
-        {
-            if (f == funcV && curr_x < 0 && y[i] == 1)
-            {
+        /* Заполнение массива + обработка ОДЗ */
+        if (screenCordY >= 0 && screenCordY < HEIGHT) {
+            if (f == funcV && curr_x < 0 && y[i] == 1) {
                 screen[screenCordY][i] = ' ';
             }
-            else
-            {
+            else {
                 screen[screenCordY][i] = '*';
             }
         }
 
-        if (i > 0)
-        {
-            int doConnect = 1;
+        if (i > 0) {
+            doConnect = 1;
 
-            if (f == funcV)
-            {
+            if (f == funcV) {
                 double oldX = xStart + (i - 1) * stepX;
-                if (chunkV(oldX) != chunkV(curr_x))
-                {
+                if (chunkV(oldX) != chunkV(curr_x)) {
                     doConnect = 0;
                 }
             }
 
-            if (doConnect)
-            {
-                int a = oldScreenCordY;
-                int b = screenCordY;
-                int temp;
-                if (a > b)
-                {
+            if (doConnect) {
+                a = oldScreenCordY;
+                b = screenCordY;
+                temp;
+                if (a > b) {
                     temp = a;
                     a = b;
                     b = temp; 
                 }
 
-                for (int k = a; k <= b; ++k)
-                    if (k >= 0 && k < HEIGHT)
-                    {
+                for (int k = a; k <= b; ++k) {
+                    if (k >= 0 && k < HEIGHT) {
                         screen[k][i] = '*';
                     }
+                }
             }
         }
 
         oldScreenCordY = screenCordY;
     }
 
-    for (int j = 0; j < HEIGHT; ++j)
-    {
+    for (int j = 0; j < HEIGHT; ++j) {
         printf("\t");
-        for (int i = 0; i < WIDTH; ++i)
-            printf("%c",screen[j][i]);
+        for (int i = 0; i < WIDTH; ++i) {
+            printf("%c", screen[j][i]);
+        }
         printf("\n");
     }
 
@@ -469,39 +444,33 @@ int buildGraph(TFunc_t f, double xStart, double xEnd)
 
 int chunkV(double x)
 {
-    if (x > 0.75)
-    {
+    if (x > 0.75) {
         return 3;
     }
-    else if (x >= 0)
-    {
+    else if (x >= 0) {
         return 2;
     }
-        else
-        {
+        else {
             return 1;
         }
 }
 
-//functions for array
-
-//Расчёской (англ. comb)
+/* Расчёской(англ.comb) */
 double* combSort(double* array, int size, int h)
 {
     double temp;
     int step = size, cnt = 0;
-    if (h == 1)
-    {
-        while (step > 1 || cnt)
-        {
+
+    /* h = 1 - убывание
+       h != 1 - возрастание */
+    if (h == 1) {
+        while (step > 1 || cnt) {
             cnt = 0;
             step /= 1.247;
             step = step < 1 ? 1 : step;
 
-            for (int i = 0; i + step < size; i++)
-            {
-                if (array[i] < array[i + step])
-                {
+            for (int i = 0; i + step < size; i++) {
+                if (array[i] < array[i + step]) {
                     temp = array[i];
                     array[i] = array[i + step];
                     array[i + step] = temp;
@@ -510,18 +479,14 @@ double* combSort(double* array, int size, int h)
             }
         }
     }
-    else
-    {
-        while (step > 1 || cnt)
-        {
+    else {
+        while (step > 1 || cnt) {
             cnt = 0;
             step /= 1.247;
             step = step < 1 ? 1 : step;
 
-            for (int i = 0; i + step < size; i++)
-            {
-                if (array[i] > array[i + step])
-                {
+            for (int i = 0; i + step < size; i++) {
+                if (array[i] > array[i + step]) {
                     temp = array[i];
                     array[i] = array[i + step];
                     array[i + step] = temp;
@@ -533,21 +498,20 @@ double* combSort(double* array, int size, int h)
     return array;
 }
 
-// Гномья
+/* Гномья сортировка */
 double* gnomeSort(double* array, int size, int h)
 {
     double temp;
     int i = 1;
-    //Убывание
+
+    /* h = 1 - убывание
+       h != 1 - возрастание */
     if (h == 1) {
-        while (i < size)
-        {
-            if (i == 0 || array[i - 1] >= array[i])
-            {
+        while (i < size) {
+            if (i == 0 || array[i - 1] >= array[i]) {
                 i++;
             }
-            else
-            {
+            else {
                 temp = array[i];
                 array[i] = array[i - 1];
                 array[i - 1] = temp;
@@ -555,16 +519,12 @@ double* gnomeSort(double* array, int size, int h)
             }
         }
     }
-    else// Возрастание
-    {
-        while (i < size)
-        {
-            if (i == 0 || array[i - 1] <= array[i])
-            {
+    else {
+        while (i < size) {
+            if (i == 0 || array[i - 1] <= array[i]) {
                 i++;
             }
-            else
-            {
+            else {
                 temp = array[i];
                 array[i] = array[i - 1];
                 array[i - 1] = temp;
@@ -575,17 +535,18 @@ double* gnomeSort(double* array, int size, int h)
     return array;
 }
 
+/* Печать массива в консоль */
 int printArray(double* array, int size)
 {
     printf("\t");
-    for (int i = 0; i < size; i++)
-    {
+    for (int i = 0; i < size; i++) {
         printf("%.3lf ", array[i]);
     }
 
     return 0;
 }
 
+/* Загрузка массива из файла */
 double* load_datafile(double* array,char* name, int* inSize)
 {
     FILE* file;
@@ -594,22 +555,22 @@ double* load_datafile(double* array,char* name, int* inSize)
     char name1[100];
     sprintf(name1,"%s.txt",name);
 
-    if ((file = fopen(name1, "r")) != NULL)
-    {
-        while (fscanf(file, "%lf", &temp) == 1)
+    if ((file = fopen(name1, "r")) != NULL) {
+
+        while (fscanf(file, "%lf", &temp) == 1) {
             size++;
+        }    
+
         fclose(file);
 
-        if (!size)
-        {
+        if (!size) {
             printf("\n\tФайл пуст. Переходим к созданию нового файла\n");
             return NULL;
         }
-        else
-        {
+        else {
             tempPtr = (double*)realloc(array,sizeof(double) * size);
-            if (tempPtr == NULL) 
-            {
+
+            if (tempPtr == NULL)  {
                 return NULL;
             }
             array = tempPtr;
@@ -621,8 +582,7 @@ double* load_datafile(double* array,char* name, int* inSize)
             fclose(file);
         }
     }
-    else
-    {
+    else {
         printf("\n\tФайл не существует. Переходим к созданию нового файла\n");
         return NULL;
     }
@@ -630,12 +590,14 @@ double* load_datafile(double* array,char* name, int* inSize)
     return array;
 }
 
+/* Генерация нового массива и его запись в файл */
 double* generate_NewData(double* array, char* name,double start, double end, double step, TFunc_t func, int* inSize)
 {
     FILE* file;
     double temp, *tempPtr = NULL;
     int size = 0;
     char name1[100];
+
     sprintf(name1, "%s.txt", name);
 
     file = fopen(name1, "w");
@@ -643,8 +605,7 @@ double* generate_NewData(double* array, char* name,double start, double end, dou
     array = TabForArray(array, func, start, end, step);
     size = (int)(end - start) / step + 1;
 
-    for (int i = 0; i < size; i++)
-    {
+    for (int i = 0; i < size; i++) {
         fprintf(file, "%lf ", array[i]);
     }
 
@@ -656,30 +617,25 @@ double* generate_NewData(double* array, char* name,double start, double end, dou
     return array;
 }
 
+/* Сохранение массива в файл */
 int save_toFile(char* name, double* array, int size,int choice)
 {
     FILE* file;
 
-    if (choice == 1)
-    {
-        if ((file = fopen(name, "w")) == NULL)
-        {
+    if (choice == 1) {
+        if ((file = fopen(name, "w")) == NULL) {
             return -1;
         }
-        for (int i = 0; i < size; i++)
-        {
+        for (int i = 0; i < size; i++) {
             fprintf(file, "%lf ", array[i]);
         }
         fclose(file);
     }
-    else
-    {
-        if ((file = fopen(name, "a")) == NULL)
-        {
+    else {
+        if ((file = fopen(name, "a")) == NULL) {
             return -1;
         }
-        for (int i = 0; i < size; i++)
-        {
+        for (int i = 0; i < size; i++) {
             fprintf(file, "%lf ", array[i]);
         }
         fclose(file);
@@ -687,26 +643,23 @@ int save_toFile(char* name, double* array, int size,int choice)
     return 0;
 }
 
+/* Генерация данных для массива из табуляции функции */
 double* TabForArray(double* array,TFunc_t pFunc, double x1, double x2, double step)
 {
     int cnt = 0;
     double* temp = (double*)realloc(array,sizeof(double) * (int)ceil(((x2 - x1) / step))+1);
 
-    if (temp == NULL)
-    {
+    if (temp == NULL) {
         return NULL;
     }
 
     array = temp;
 
-    for (double i = x1; i <= x2; i += step)
-    {
-        if (pFunc == funcV && chunkV(i) == 1 && cos(i) == 0)
-        {
+    for (double i = x1; i <= x2; i += step) {
+        if (pFunc == funcV && chunkV(i) == 1 && cos(i) == 0) {
             array[cnt] = 1. * (rand() % 1000 - 1000) * rand()/RAND_MAX;
         }
-        else 
-        {
+        else  {
             array[cnt] = pFunc(i);
             cnt++;
         }
