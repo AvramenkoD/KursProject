@@ -21,7 +21,7 @@ int printArray(double*, int);
 double* load_datafile(double*,char*, int*);
 double* generate_NewData(double*, char*, double, double, double, TFunc_t, int*);
 
-int main(void)
+int main()
 {
     //function
     setlocale(LC_ALL, "RUS");
