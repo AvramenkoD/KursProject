@@ -24,12 +24,22 @@ double* generate_NewData(double*, char*, double, double, double, TFunc_t, int*);
 int main()
 {
     /* Функции */
-    int f_choise, op_choise,obj_choise, repeatF = 1, inputEr;
+    int f_choise = 0;
+    int op_choise = 0;
+    int obj_choise = 0;
+    int inputEr = 0;
+    int repeatF = 1;
     double x1 = 0, x2 = 0, step = 0;
     TFunc_t func = NULL;
 
     /* Массив */
-    int a_choise, a_opChoise, a_choiceSort[2],a_saveChoise[2],a_choiceOut, size, cnt;
+    int a_choise = 0;
+    int a_opChoise = 0;
+    int a_choiceSort[2] = {0,0};/* Первый элемент массива выбор ц*/
+    int a_saveChoise[2] = {0,0};
+    int a_choiceOut = 0;
+    int size = 0;
+    int cnt = 0;
     double* array = (double*)malloc(sizeof(double));
     char nameIn[100];
     char nameOut[100];
